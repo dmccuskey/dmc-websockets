@@ -1,7 +1,9 @@
 --====================================================================--
 -- dmc_lua/json.lua
 --
--- a simple, standard way to load json on various systems
+-- consistent method which which to load json on various systems
+--
+-- Documentation: http://docs.davidmccuskey.com/
 --====================================================================--
 
 
@@ -34,7 +36,7 @@ SOFTWARE.
 
 
 --====================================================================--
---== Json Shim
+--== DMC Lua Library: JSON Shim
 --====================================================================--
 
 

@@ -1,7 +1,7 @@
 --====================================================================--
--- lua_megaphone.lua
+-- dmc_lua/lua_megaphone.lua
 --
--- Documentation: docs.davidmccuskey.com
+-- Documentation: http://docs.davidmccuskey.com/
 --====================================================================--
 
 --[[
@@ -33,7 +33,7 @@ SOFTWARE.
 
 
 --====================================================================--
---== Megaphone Global Communicator
+--== DMC Lua Library : Lua Megaphone
 --====================================================================--
 
 
@@ -43,54 +43,12 @@ local VERSION = "1.1.0"
 
 
 
---[[
-
-== Overview ==
-
-The Megaphone is to be used for inter-app communication
-
-This is a singleton by nature
-Because it is global, any other component, view, etc can gain access to it
-
-As any global object it should be used for only _well-defined events_!
-
-
-== Usage ==
-
-
-=== Access ===
-
-this is a global variable accessible anywhere in the application.
-so far messages are in one direction. there is a distinct speaker and receiver.
-
-
-=== Event Listener ===
-
-listening for global messages (ie, addEventListener):
-( o/f is object or function listener )
-
-gMegaphone:listen( o/f )
-
-
-sending global messages:
-
-gMegaphone:say( gMegaphone.DATA_RENDER_REQUEST, { ...params...} )
-
-
-ignoring global messages (ie, removeEventListener):
-( o/f is object or function listener, same as listen )
-
-gMegaphone:ignore( o/f )
-
---]]
-
-
-
 --====================================================================--
 --== Imports
 
 
 local Objects = require 'lua_objects'
+local LuaEventsMixin = require 'lua_events_mix'
 
 
 
@@ -99,42 +57,72 @@ local Objects = require 'lua_objects'
 
 
 -- setup some aliases to make code cleaner
-local inheritsFrom = Objects.inheritsFrom
-local ObjectBase = Objects.ObjectBase
+local newClass = Objects.newClass
+local Class = Objects.Class
+
+local EventsMix = LuaEventsMixin.EventsMix
+local singleton = nil
 
 
 
 --====================================================================--
---== Megaphone Object
+--== Megaphone Class
 --====================================================================--
 
 
-local Megaphone = inheritsFrom( ObjectBase )
+local Megaphone = newClass( { Class, EventsMix }, { name="Lua Megaphone" } )
 
 --== Event Constants ==--
 
-Megaphone.EVENT = "megaphone_event"
-
+Megaphone.EVENT = 'megaphone_event'
 
 
 --======================================================--
---== Support Methods
+-- Start: Setup Lua Objects
+
+function Megaphone:__new__( ... )
+	-- print( "Megaphone:__new__" )
+	EventsMix.__init__( self, ... )
+end
+
+--[[
+function Megaphone:__destroy__( ... )
+	-- print( "Megaphone:__destroy__" )
+	EventsMix.__undoInit__( self )
+end
+--]]
+
+-- END: Setup Lua Objects
+--======================================================--
+
+
+--====================================================================--
+--== Public Methods
 
 
 function Megaphone:say( message, params )
-	--print("Megaphone:say ", message )
+	-- print( "Megaphone:say ", message )
+	params = params or {}
+	assert( type(message)=='string', "Megaphone:say, arg 'message' must be a string" )
+	assert( type(params)=='table', "Megaphone:say, arg 'params' must be a table" )
+	--==--
 	self:dispatchEvent( message, params )
 end
 function Megaphone:listen( listener )
-	-- print("Megaphone:listen " )
+	-- print( "Megaphone:listen " )
+	assert( type(listener)=='function', "Megaphone:say, arg 'listener' must be a function" )
+	--==--
 	self:addEventListener( Megaphone.EVENT, listener )
 end
 function Megaphone:ignore( listener )
-	-- print("Megaphone:ignore " )
+	-- print( "Megaphone:ignore " )
+	assert( type(listener)=='function', "Megaphone:say, arg 'listener' must be a function" )
+	--==--
 	self:removeEventListener( Megaphone.EVENT, listener )
 end
 
 
 
+singleton = Megaphone:new()
 
-return Megaphone
+return singleton
