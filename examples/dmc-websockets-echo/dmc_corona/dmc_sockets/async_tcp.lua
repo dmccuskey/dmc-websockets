@@ -1,16 +1,14 @@
 --====================================================================--
 -- dmc_sockets/async_tcp.lua
 --
---
--- by David McCuskey
--- Documentation: http://docs.davidmccuskey.com/display/docs/dmc_sockets.lua
+-- Documentation: http://docs.davidmccuskey.com/
 --====================================================================--
 
 --[[
 
 The MIT License (MIT)
 
-Copyright (c) 2014 David McCuskey
+Copyright (c) 2014-2015 David McCuskey
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,18 +33,21 @@ SOFTWARE.
 
 
 --====================================================================--
--- DMC Corona Library : Async TCP
+--== DMC Corona Library : Async TCP
 --====================================================================--
+
 
 -- Semantic Versioning Specification: http://semver.org/
 
-local VERSION = "0.2.0"
+local VERSION = "0.3.0"
+
 
 
 --====================================================================--
--- Imports
+--== Imports
 
-local Objects = require 'lua_objects'
+
+local Objects = require 'dmc_objects'
 local socket = require 'socket'
 local tcp_socket = require 'dmc_sockets.tcp'
 
@@ -55,11 +56,13 @@ local ssl = require 'plugin_luasec_ssl'
 -- require("ssl")
 
 
+
 --====================================================================--
--- Setup, Constants
+--== Setup, Constants
+
 
 -- setup some aliases to make code cleaner
-local inheritsFrom = Objects.inheritsFrom
+local newClass = Objects.newClass
 
 local tconcat = table.concat
 local tinsert = table.insert
@@ -74,17 +77,16 @@ local LOCAL_DEBUG = false
 --====================================================================--
 
 
-local ATCPSocket = inheritsFrom( tcp_socket )
-ATCPSocket.NAME = "Async TCP Socket Class"
+local ATCPSocket = newClass( tcp_socket, { name="Async TCP Socket" } )
 
 
---====================================================================--
---== Start: Setup DMC Objects
+--======================================================--
+-- Start: Setup DMC Objects
 
-function ATCPSocket:_init( params )
-	-- print( "ATCPSocket:_init" )
+function ATCPSocket:__init__( params )
+	-- print( "ATCPSocket:__init__" )
 	params = params or {}
-	self:superCall( "_init", params )
+	self:superCall( '__init__', params )
 	--==--
 
 	--== Create Properties ==--
@@ -100,12 +102,14 @@ function ATCPSocket:_init( params )
 
 end
 
---== END: Setup DMC Objects
---====================================================================--
+-- END: Setup DMC Objects
+--======================================================--
+
 
 
 --====================================================================--
 --== Public Methods
+
 
 function ATCPSocket.__getters:timeout( value )
 	self._timeout = value
@@ -311,14 +315,15 @@ end
 
 function ATCPSocket:receiveUntilNewline( callback )
 	-- print( 'ATCPSocket:receiveUntilNewline' )
-
-	if not callback or type( callback ) ~= 'function' then return end
+	assert( type(callback)=='function', "receiveUntilNewline: expected function callback" )
+	--==--
 
 	local data_list = {}
 	local evt = {}
 
 	-- create coroutine function
 	local doDataCall = function( not_coroutine )
+		-- print( "do data call", not_coroutine )
 
 		local beg_time = system.getTimer()
 		local timeout, time_diff = self._timeout, 0
@@ -388,6 +393,7 @@ function ATCPSocket:receiveUntilNewline( callback )
 	end
 
 end
+
 
 
 --====================================================================--
@@ -474,8 +480,10 @@ function ATCPSocket:_processCoroutineQueue()
 end
 
 
+
 --====================================================================--
 --== Event Handlers
+
 
 function ATCPSocket:_socketsEvent_handler( event )
 	-- print( 'ATCPSocket:_socketsEvent_handler', event )
