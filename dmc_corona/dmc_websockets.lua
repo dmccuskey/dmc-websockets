@@ -293,6 +293,7 @@ function WebSocket:__init__( params )
 
 	self._ba = nil -- our Byte Array, buffer
 	self._socket = nil
+	self._ssl_params = params.ssl_params
 
 
 	-- set first state
@@ -857,8 +858,8 @@ function WebSocket:do_state_init( params )
 
 	Sockets.throttle = self._socket_throttle
 
-	socket = Sockets:create( Sockets.ATCP )
-	socket.secure = url_parts.scheme == 'wss' and true or false
+	socket = Sockets:create( Sockets.ATCP, {ssl_params=self._ssl_params} )
+	socket.secure = (url_parts.scheme == 'wss') -- true/false
 	self._socket = socket
 
 	if LOCAL_DEBUG then
