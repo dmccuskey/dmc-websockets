@@ -33,27 +33,40 @@ DEALINGS IN THE SOFTWARE.
 
 
 --====================================================================--
--- DMC Corona Library : DMC Corona Boot
+--== DMC Corona Library : DMC Corona Boot
 --====================================================================--
 
 
 -- Semantic Versioning Specification: http://semver.org/
 
-local VERSION = "1.3.0"
-
-
---====================================================================--
--- Imports
-
-local ok, json = pcall( require, 'json' )
-if not ok then json = nil end
+local VERSION = "1.4.0"
 
 
 
 --====================================================================--
--- Setup Support
---====================================================================--
+--== Imports
 
+
+local has_json, json = pcall( require, 'json' )
+if not has_json then json = nil end
+
+
+
+--====================================================================--
+--== Setup, Constants
+
+
+local tinsert = table.insert
+local tconcat = table.concat
+local sfind = string.find
+
+local PLATFORM_NAME = system.getInfo( 'platformName' )
+
+
+
+--====================================================================--
+--== Setup Support
+--====================================================================--
 
 
 local Utils = {} -- make copying from dmc_utils easier
@@ -98,9 +111,8 @@ function Utils.split( str, sep )
 end
 
 
-local platform_name = system.getInfo( 'platformName' )
 function Utils.getSystemSeparator()
-	if platform_name == 'Win' then
+	if PLATFORM_NAME == 'Win' then
 		return '\\'
 	else
 		return '/'
@@ -343,7 +355,7 @@ end
 
 
 --====================================================================--
--- Setup DMC Corona Library Config
+--== Setup DMC Corona Library Config
 --====================================================================--
 
 -- This is standard code to bootstrap the dmc-corona-library
@@ -390,7 +402,7 @@ if _G.__dmc_require == nil then
 		local _paths = _G.__dmc_require.paths
 		local _require = _G.__dmc_require.require
 		local lua_paths = Utils.extend( _paths, {} )
-		table.insert( lua_paths, 1, '' ) -- add search at root-level
+		tinsert( lua_paths, 1, '' ) -- add search at root-level
 
 		local err_tbl = {}
 		local library = nil
@@ -403,12 +415,12 @@ if _G.__dmc_require == nil then
 			if has_module then
 				library = result
 			else
-				if string.find( result, '^error loading module' ) then
+				if sfind( result, '^error loading module' ) then
 					print( result )
 					error( result, 2 )
 				else
-					table.insert( err_tbl, resource_path..'/'..mod_path )
-					table.insert( err_tbl, result )
+					tinsert( err_tbl, resource_path..'/'..mod_path )
+					tinsert( err_tbl, result )
 				end
 			end
 
@@ -416,9 +428,9 @@ if _G.__dmc_require == nil then
 		until library or idx > #lua_paths
 
 		if not library then
-			table.insert( err_tbl, 1, "module '".. module_name.."' not found in archive:" )
+			tinsert( err_tbl, 1, "module '".. module_name.."' not found in archive:" )
 			-- print( table.concat( err_tbl, '\n' ) )
-			error( table.concat( err_tbl, '\n' ), 2 )
+			error( tconcat( err_tbl, '\n' ), 2 )
 		end
 
 		return library
@@ -426,11 +438,23 @@ if _G.__dmc_require == nil then
 
 end
 
--- enhance lua search path
+-- library locations used by dmc_corona
+local THIRD_LIBS = { 'lib/dmc_lua' }
+
+-- enhance Lua search path
 if dmc_lib_info.lua_path then
 	local dmc_paths = _G.__dmc_require.paths
 	local path_info = dmc_lib_info.lua_path
-	for i=#path_info, 1, -1 do
-		dmc_paths[i] = Utils.sysPathToRequirePath( path_info[i] )
+	local sys2req = Utils.sysPathToRequirePath
+	local mod_path, third_path
+	for i=1,#path_info do
+		mod_path = path_info[i]
+		-- print( sys2req( mod_path ) )
+		table.insert( dmc_paths, sys2req( mod_path ) )
+		for i=1,#THIRD_LIBS do
+			third_path = THIRD_LIBS[i]
+			-- print( sys2req( mod_path..'/'..third_path ) )
+			table.insert( dmc_paths, sys2req( mod_path..'/'..third_path ) )
+		end
 	end
 end
