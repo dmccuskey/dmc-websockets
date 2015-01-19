@@ -33,7 +33,7 @@ SOFTWARE.
 
 
 --====================================================================--
--- DMC Lua Library : Lua Utils
+--== DMC Lua Library : Lua Utils
 --====================================================================--
 
 
@@ -42,8 +42,9 @@ SOFTWARE.
 local VERSION = "0.1.1"
 
 
+
 --====================================================================--
--- Setup, Constants
+--== Setup, Constants
 
 local slower = string.lower
 
@@ -56,7 +57,7 @@ local Utils = {} -- Utils object
 
 
 --====================================================================--
--- Callback Functions
+--== Callback Functions
 --====================================================================--
 
 
@@ -68,8 +69,8 @@ local Utils = {} -- Utils object
 -- @param method the method to call
 --
 function Utils.createObjectCallback( object, method )
-	assert( object ~= nil, "missing object in Utils.createObjectCallback" )
-	assert( method ~= nil, "missing method in Utils.createObjectCallback" )
+	assert( object, "dmc_utils.createObjectCallback: missing object" )
+	assert( method, "dmc_utils.createObjectCallback: missing method" )
 	--==--
 	return function( ... )
 		return method( object, ... )
@@ -92,7 +93,7 @@ end
 
 
 --====================================================================--
--- Date Functions
+--== Date Functions
 --====================================================================--
 
 
@@ -157,8 +158,9 @@ end
 
 
 --====================================================================--
--- Image Functions
+--== Image Functions
 --====================================================================--
+
 
 -- imageScale()
 -- container, image - table with width/height keys
@@ -191,8 +193,9 @@ end
 
 
 --====================================================================--
--- JSON/Lua Functions
+--== JSON/Lua Functions
 --====================================================================--
+
 
 --[[
 These functions fix the issue that arises when working with JSON and
@@ -260,8 +263,9 @@ end
 
 
 --====================================================================--
--- Math Functions
+--== Math Functions
 --====================================================================--
+
 
 function Utils.getUniqueRandom( include, exclude )
 	--print( "Utils.getUniqueRandom" )
@@ -325,8 +329,9 @@ end
 
 
 --====================================================================--
--- String Functions
+--== String Functions
 --====================================================================--
+
 
 -- split string up in parts, using separator
 -- returns array of pieces
@@ -360,8 +365,9 @@ end
 
 
 --====================================================================--
--- Table Functions
+--== Table Functions
 --====================================================================--
+
 
 -- destroy()
 -- Deletes all of the items in a table structure.
@@ -609,8 +615,9 @@ end
 
 
 --====================================================================--
--- Web Functions
+--== Web Functions
 --====================================================================--
+
 
 function Utils.createHttpRequest( params )
 	-- print( "Utils.createHttpRequest")
@@ -641,6 +648,7 @@ end
 function Utils.normalizeHeaders( headers, params )
 	params = params or {}
 	params.case = params.case or 'lower' -- camel, lower
+	params.debug = params.debug ~= nil and params.debug or false
 	--==--
 	local h = {}
 	local f
@@ -649,10 +657,12 @@ function Utils.normalizeHeaders( headers, params )
 	else
 		f = string.lower
 	end
+
 	for k,v in pairs( headers ) do
-		print(k,v)
+		if params.debug then print(k,v) end
 		h[ f(k) ] = v
 	end
+
 	return h
 end
 
