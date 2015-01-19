@@ -300,16 +300,18 @@ function Sockets:create( s_type, params )
 	--==--
 
 	if s_type == Sockets.TCP then
-		return tcp_socket:new( { master=self } )
+		params.master = self
+		return tcp_socket:new( params )
 
 	elseif s_type == Sockets.ATCP then
-		return atcp_socket:new( { master=self } )
+		params.master = self
+		return atcp_socket:new( params )
 
 	elseif s_type == Sockets.UDP then
-		error( "UDP is not yet available" )
+		error( "Sockets:create, UDP is not yet available" )
 
 	else
-		error( "Uknown socket type: %s" .. tostring( s_type ) )
+		error( "Sockets:create, Unknown socket type: " .. tostring( s_type ) )
 	end
 
 end

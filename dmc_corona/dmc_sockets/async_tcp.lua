@@ -49,7 +49,8 @@ local VERSION = "0.3.0"
 
 local Objects = require 'dmc_objects'
 local socket = require 'socket'
-local tcp_socket = require 'dmc_sockets.tcp'
+local TCPSocket = require 'dmc_sockets.tcp'
+local SSLParams = require 'dmc_sockets.ssl_params'
 
 local openssl = require 'plugin.openssl'
 local ssl = require 'plugin_luasec_ssl'
@@ -77,7 +78,7 @@ local LOCAL_DEBUG = false
 --====================================================================--
 
 
-local ATCPSocket = newClass( tcp_socket, { name="Async TCP Socket" } )
+local ATCPSocket = newClass( TCPSocket, { name="Async TCP Socket" } )
 
 
 --======================================================--
@@ -98,8 +99,18 @@ function ATCPSocket:__init__( params )
 
 	self._read_in_process = false
 
+	self._ssl_params = params.ssl_params
+
 	--== Object References ==--
 
+end
+
+function ATCPSocket:__initComplete__()
+	-- print( "ATCPSocket:__initComplete__" )
+	self:superCall( '__initComplete__' )
+	--==--
+
+	self.ssl_params = self._ssl_params -- use setter
 end
 
 -- END: Setup DMC Objects
@@ -113,6 +124,43 @@ end
 
 function ATCPSocket.__getters:timeout( value )
 	self._timeout = value
+end
+
+
+function ATCPSocket.__setters:ssl_params( value )
+	-- print( "ATCPSocket.__setters:ssl_params", value.NAME )
+	assert( value==nil or type(value)=='table', "ATCPSocket.ssl_params incorrect value" )
+	--==--
+
+	if value == nil then
+		-- TODO: properly destroy
+		self._ssl_params = nil
+	elseif value.isa and value:isa( SSLParams ) then
+		self._ssl_params = value
+	else
+		self._ssl_params = SSLParams:new( value )
+	end
+
+end
+
+function ATCPSocket.__getters:ssl_params( value )
+	-- print( "ATCPSocket.__getters:ssl_params", is_secure )
+	return self._ssl_params
+end
+
+
+function ATCPSocket.__setters:secure( is_secure )
+	-- print( "ATCPSocket.__setters:secure", is_secure )
+	if not is_secure then
+		self._ssl_params = nil
+	elseif is_secure and self._ssl_params == nil then
+		self._ssl_params = SSLParams:new()
+	end
+end
+
+function ATCPSocket.__getters:secure()
+	-- print( "ATCPSocket.__getters:secure" )
+	return (self._ssl_params ~= nil)
 end
 
 
@@ -138,7 +186,6 @@ function ATCPSocket:connect( host, port, params )
 	self:_createSocket( { timeout=0 } )
 
 	local f = function()
-
 		local beg_time = system.getTimer()
 		local timeout, time_diff = self._timeout, 0
 		local evt = {}
@@ -161,18 +208,11 @@ function ATCPSocket:connect( host, port, params )
 				evt.emsg = emsg
 
 				if self.secure == true then
-					local sslparams = {
-					  mode = "client",
-					  -- protocol = "tlsv1",
-					  protocol = "sslv3",
-					  verify = "none",
-					  options = "all",
-					}
 
-					local sock, emsg = ssl.wrap( self._socket, sslparams )
+					local sock, emsg = ssl.wrap( self._socket, self.ssl_params )
+
 					if sock then
 						self._socket = sock
-
 					else
 						evt.isError = true
 						evt.emsg = emsg
@@ -181,6 +221,7 @@ function ATCPSocket:connect( host, port, params )
 					end
 
 					local result, emsg = self._socket:dohandshake()
+
 					if not result then
 						evt.isError = true
 						evt.emsg = emsg

@@ -66,9 +66,7 @@ local newClass = Objects.newClass
 --====================================================================--
 
 
-local ProtocolError = newClass( Error, { } )
-ProtocolError.NAME = "Protocol Error"
-
+local ProtocolError = newClass( Error, { name="Protocol Error" } )
 
 -- params:
 -- code
