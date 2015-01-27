@@ -41,7 +41,7 @@ SOFTWARE.
 
 -- Semantic Versioning Specification: http://semver.org/
 
-local VERSION = "1.4.0"
+local VERSION = "1.4.1"
 
 
 
@@ -115,6 +115,7 @@ end
 
 
 function Utils.getSystemSeparator()
+	-- print( "Utils.getSystemSeparator")
 	if PLATFORM_NAME == 'Win' then
 		return '\\'
 	else
@@ -129,8 +130,12 @@ function Utils.propertyIn( list, property )
 	return false
 end
 
+
+-- takes Lua module dot to system path
+-- eg, lib.dmc_lua.lua_object >> lib/dmc_lua/lua_object
+--
 function Utils.sysPathToRequirePath( sys_path )
-	-- print( "sysPathToRequirePath", sys_path)
+	-- print( "sysPathToRequirePath", sys_path )
 	local sys_tbl = Utils.split( sys_path, Utils.getSystemSeparator() )
 	-- clean off any dots
 	for i=#sys_tbl, 1, -1 do
@@ -141,8 +146,11 @@ function Utils.sysPathToRequirePath( sys_path )
 	return table.concat( sys_tbl, '.' )
 end
 
+-- takes Lua module dot to system path
+-- eg, lib.dmc_lua.lua_object >> lib/dmc_lua/lua_object
+--
 function Utils.cleanSystemPath( sys_path )
-	-- print( "cleanSystemPath", sys_path)
+	-- print( "cleanSystemPath", sys_path )
 	local sep = Utils.getSystemSeparator()
 	local sys_tbl = Utils.split( sys_path, sep )
 	-- clean off any dots
@@ -424,6 +432,20 @@ local DMC_CORONA_DEFAULT_SECTION = 'dmc_corona'
 -- locations of third party libs used by dmc_corona
 local THIRD_LIBS = { 'lib/dmc_lua' }
 
+local REQ_STACK = {}
+
+
+local function pushStack( value )
+	table.insert( REQ_STACK, value )
+end
+local function popStack()
+	if REQ_STACK == 0 then
+		-- print( "nothing ins stack")
+		error( "nothing in stack" )
+	end
+	return table.remove( REQ_STACK )
+end
+
 
 local function newRequireFunction( module_name )
 	-- print( "dmc_require: ", module_name )
@@ -437,76 +459,62 @@ local function newRequireFunction( module_name )
 	tinsert( lua_paths, 1, '' ) -- add search at root-level
 
 	local err_tbl = {}
-	local library = nil
+	local library, err = nil, nil
 	local idx = 1
+
+	pushStack( module_name )
 	repeat
 		local mod_path = lua_paths[idx]
 		local path = ( mod_path=='' and mod_path or mod_path..'.' ) .. module_name
 
 		local has_module, result = pcall( _require, path )
+
 		if has_module then
 			library = result
+
+		elseif type( result )=='table' then
+			-- print( "from below", #REQ_STACK)
+			err = result
+			popStack()
+
+			if #REQ_STACK==0 then
+				local stk = table.remove( result, 1 )
+				error( table.concat( result, '\n' ), 3 )
+			else
+				error( result )
+			end
+
 		else
 			if sfind( result, '^error loading module' ) then
-				print( result )
-				error( result, 2 )
+				-- print( "error loading module", #REQ_STACK )
+				result="\n"..result
+				popStack()
+				if #REQ_STACK==0 then
+					error( result, 3 )
+				else
+					error( { #REQ_STACK, result } )
+				end
+			elseif sfind( result, '^module' ) then
+				-- pass
 			else
-				tinsert( err_tbl, resource_path..'/'..mod_path )
-				tinsert( err_tbl, result )
+				error( result )
 			end
+
 		end
 
 		idx=idx+1
-	until library or idx > #lua_paths
+	until err or library or idx > #lua_paths
 
 	if not library then
-		tinsert( err_tbl, 1, "module '".. module_name.."' not found in archive:" )
-		-- print( table.concat( err_tbl, '\n' ) )
-		error( tconcat( err_tbl, '\n' ), 2 )
+		local emsg = string.format( "\nThe module '%s' not found in archive:", tostring( module_name) )
+		local err = { #REQ_STACK, debug.traceback( emsg, 2 ) }
+		popStack()
+		error( err )
 	end
+
+	popStack()
 
 	return library
-
-end
-
-
-local function cleanRequireFunction( module_path )
-	-- print( "cleanRequireFunction", module_path )
-
-	local SYS_PATH = system.pathForFile( system.ResourceDirectory )
-	local _require = _G.__dmc_require.require
-
-	-- get all of our search paths
-	local _paths = _G.__dmc_require.paths
-	local lua_paths = Utils.extend( _paths, {} )
-	tinsert( lua_paths, 1, '' ) -- add search at root-level
-
-	-- change module_path back to file system path
-	local mod_sys = sgsub( module_path, '%.', '/' ) .. '.lua'
-
-	-- do search for module on file system
-	local mod_loc = nil -- module location
-	for _, path in ipairs( lua_paths ) do
-		local full_path
-		if path == '' then
-			full_path = tconcat( { SYS_PATH, mod_sys }, '/' )
-		else
-			full_path = tconcat( { SYS_PATH, path, mod_sys }, '/' )
-		end
-		if File.fileExists( full_path ) then
-			mod_loc = path
-			break
-		end
-	end
-
-	-- make a "fully qualified" module path
-	local full_mod_path = module_path -- default, original
-	if mod_loc and #mod_loc>0 then
-		mod_loc = sgsub( mod_loc, '/', '.' )
-		full_mod_path = tconcat( { mod_loc, module_path }, '.' )
-	end
-
-	return _require( full_mod_path )
 end
 
 
@@ -537,16 +545,23 @@ end
 local function setupDMCRequireStruct()
 	-- print( "setupDMCRequireStruct" )
 	if _G.__dmc_require ~= nil then return end
-
 	_G.__dmc_require = {
 		paths={},
 		require=_G.require, -- orig require method
 		pkg_path = package.path -- orig package path
 	}
+end
+
+
+local function setupRequireLoading()
+	-- print( "setupRequireLoading" )
+	if _G.__dmc_require ~= nil then return end
+
+	setupDMCRequireStruct()
 
 	local dmc_corona_info = _G.__dmc_corona.dmc_corona
 	local req_paths = _G.__dmc_require.paths
-	local cleanSys = Utils.cleanSystemPath
+	local sys2reqPath = Utils.sysPathToRequirePath
 
 	local path_info = dmc_corona_info.lua_path or {}
 
@@ -554,12 +569,12 @@ local function setupDMCRequireStruct()
 	for i=1,#path_info do
 		local mod_path, third_path
 		mod_path = path_info[i]
-		-- print( cleanSys( mod_path ) )
-		table.insert( req_paths, cleanSys( mod_path ) )
+		-- print( ">s1", sys2reqPath( mod_path ) )
+		table.insert( req_paths, sys2reqPath( mod_path ) )
 		for i=1,#THIRD_LIBS do
 			third_path = THIRD_LIBS[i]
-			-- print( cleanSys( mod_path..'/'..third_path ) )
-			table.insert( req_paths, cleanSys( mod_path..'/'..third_path ) )
+			-- print( ">s2", sys2reqPath( mod_path..'.'..third_path ) )
+			table.insert( req_paths, sys2reqPath( mod_path..'.'..third_path ) )
 		end
 	end
 end
@@ -570,62 +585,24 @@ end
 --
 local function useRequireLoading()
 	-- print( "useRequireLoading" )
+
+	setupRequireLoading() -- must be first
+
 	_G.require=newRequireFunction
+
 end
 
--- useLuaPathLoading()
--- setup package.path for loading with Lua Path
---
-local function useLuaPathLoading()
-	-- print( "useLuaPathLoading" )
-	_G.require=cleanRequireFunction
-end
-
-
--- determineLoadingType()
--- reurns type of loading to use
--- 'use-luapath', 'use-require'
---
-local function determineLoadingType()
-	-- print( "determineLoadingType" )
-	local dmc_corona_info = _G.__dmc_corona.dmc_corona
-	local use_config = dmc_corona_info.use_loader
-
-	-- check config file
-	if use_config and use_config == 'lua-path' then
-		return 'use-luapath'
-	elseif use_config and use_config == 'require' then
-		return 'use-require'
-
-	-- else use platform info
-	elseif PLATFORM_NAME == 'Mac OS X' then
-		return 'use-luapath'
-	elseif PLATFORM_NAME == 'Win' then
-		return 'use-luapath'
-	elseif PLATFORM_NAME == 'WinPhone' then
-		return 'use-require'
-	elseif PLATFORM_NAME == 'iPhone OS' then
-		return 'use-luapath'
-	elseif PLATFORM_NAME == 'Android' then
-		return 'use-require'
-	else
-		return 'use-luapath'
-	end
-end
 
 -- setupModuleLoadingMethod()
 --
-local function setupModuleLoadingMethod( load_type )
-	-- print( "setupModuleLoadingMethod", load_type )
-	if load_type == 'use-luapath' then
-		useLuaPathLoading()
-	else
-		useRequireLoading()
-	end
+local function setupModuleLoadingMethod( )
+	-- print( "setupModuleLoadingMethod" )
+	setupRequireLoading() -- must be first
+
+	_G.require=newRequireFunction
 end
 
 
 readDMCConfiguration()
-setupDMCRequireStruct()
-setupModuleLoadingMethod( determineLoadingType() )
+setupModuleLoadingMethod()
 
