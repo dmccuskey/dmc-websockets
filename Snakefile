@@ -19,6 +19,7 @@ module_config = {
 			"lib/sha1.lua"
 		],
 		"requires": [
+			"dmc-corona-boot",
 			"DMC-Lua-Library",
 			"dmc-objects",
 			"dmc-sockets",
