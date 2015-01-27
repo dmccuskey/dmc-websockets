@@ -36,9 +36,10 @@ SOFTWARE.
 --== DMC Lua Library : Lua States Mixin
 --====================================================================--
 
+
 -- Semantic Versioning Specification: http://semver.org/
 
-local VERSION = "1.3.0"
+local VERSION = "1.3.1"
 
 
 
@@ -108,7 +109,7 @@ function States.__init__( self, params )
 	-- print( "States.__init__" )
 	params = params or {}
 	--==--
-	States.resetStates( self )
+	States.resetStates( self, params )
 end
 
 function States.__undoInit__( self )
@@ -125,14 +126,14 @@ end
 --== Public Methods
 
 
-function States.resetStates( self )
+function States.resetStates( self, params )
 	if self.__debug_on then
 		print( outStr( "resetStates: resetting object states" ) )
 	end
 	self.__state_stack = {}
 	self.__curr_state_func = nil
 	self.__curr_state_name = ""
-	self.__debug_on = false
+	self.__debug_on = params.debug_on == nil and false or params.debug_on
 end
 
 

@@ -39,7 +39,7 @@ SOFTWARE.
 
 -- Semantic Versioning Specification: http://semver.org/
 
-local VERSION = "0.1.2"
+local VERSION = "0.2.0"
 
 
 
@@ -48,6 +48,7 @@ local VERSION = "0.1.2"
 
 
 local Error = require 'lua_error' -- try/catch
+local Utils = require 'lua_utils'
 
 local ok, lfs = pcall( require, 'lfs' )
 if not ok then
@@ -187,47 +188,51 @@ end
 --======================================================--
 -- readFile()
 
--- full path file
-function File.readFile( file_path, options )
+function File._openCloseFile( file_path, read_f, options )
 	-- print( "File.readFile", file_path )
 	assert( type(file_path)=='string', "file path is not string" )
-	assert( #file_path>0 )
-	options = options or {}
-	options.lines = options.lines == nil and true or options.lines
+	assert( type(read_f)=='function', "read function is not function" )
 	--==--
 
-	local fh, contents
-
-	fh = assert( io.open(file_path, 'r') )
-
-	if options.lines == false then
-		-- read contents in one big string
-		contents = fh:read( '*all' )
-
-	else
-		-- read all contents of file into a table
-		contents = {}
-		for line in fh:lines() do
-			table.insert( contents, line )
-		end
-
-	end
-
+	local fh = assert( io.open(file_path, 'r') )
+	local contents = read_f( fh )
 	io.close( fh )
 
 	return contents
 end
 
+
+function File._readLines( fh )
+	local contents = {}
+	for line in fh:lines() do
+		table.insert( contents, line )
+	end
+	return contents
+end
+
 function File.readFileLines( file_path, options )
-	options = options or {}
-	options.lines = true
-	return File.readFile( file_path, options )
+	return File._openCloseFile( file_path, File._readLines, options )
+end
+
+
+function File._readContents( fh )
+	return fh:read( '*all' )
 end
 
 function File.readFileContents( file_path, options )
+	return File._openCloseFile( file_path, File._readContents, options )
+end
+
+
+function File.readFile( file_path, options )
 	options = options or {}
-	options.lines = false
-	return File.readFile( file_path, options )
+	options.lines = options.lines == nil and true or options.lines
+	--==--
+	if options.lines == true then
+		return File.readFileLines( file_path, options )
+	else
+		return File.readFileContents( file_path, options )
+	end
 end
 
 
@@ -282,6 +287,9 @@ end
 --======================================================--
 -- readConfigFile()
 
+-- types of possible keys for a line
+local KEY_TYPES = { 'boolean', 'bool', 'file', 'integer', 'int', 'json', 'path', 'string', 'str' }
+
 function File.getLineType( line )
 	-- print( "File.getLineType", #line, line )
 	assert( type(line)=='string' )
@@ -330,14 +338,11 @@ function File.processKeyLine( line )
 	key_type = File.processKeyType( key_type )
 
 	-- get final value
-	if not key_type or type(key_type)~='string' then
-		key_value = File.castTo_string( trim )
-
-	else
+	if key_type and Utils.propertyIn( KEY_TYPES, key_type ) then
 		local method = 'castTo_'..key_type
-		if File[ method ] then
-			key_value = File[method]( trim )
-		end
+		key_value = File[method]( trim )
+	else
+		key_value = File.castTo_string( trim )
 	end
 
 	return key_name, key_value
@@ -361,22 +366,26 @@ function File.processKeyType( name )
 end
 
 
-function File.castTo_bool( value )
+function File.castTo_boolean( value )
 	assert( type(value)=='string' )
 	--==--
 	if value == 'true' then return true
 	else return false end
 end
+File.castTo_bool = File.castTo_boolean
+
 function File.castTo_file( value )
 	return File.castTo_string( value )
 end
-function File.castTo_int( value )
+function File.castTo_integer( value )
 	assert( type(value)=='string' )
 	--==--
 	local num = tonumber( value )
 	assert( type(num) == 'number' )
 	return num
 end
+File.castTo_int = File.castTo_integer
+
 function File.castTo_json( value )
 	assert( type(value)=='string' )
 	--==--
@@ -391,6 +400,7 @@ function File.castTo_string( value )
 	assert( type(value)~='nil' and type(value)~='table' )
 	return tostring( value )
 end
+File.castTo_str = File.castTo_string
 
 
 function File.parseFileLines( lines, options )

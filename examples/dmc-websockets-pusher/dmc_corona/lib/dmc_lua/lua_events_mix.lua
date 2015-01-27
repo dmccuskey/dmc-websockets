@@ -39,7 +39,7 @@ SOFTWARE.
 
 -- Semantic Versioning Specification: http://semver.org/
 
-local VERSION = "0.2.1"
+local VERSION = "0.2.2"
 
 
 
@@ -190,7 +190,7 @@ end
 --== Public Methods
 
 
-function Events:createCallback( method )
+function Events.createCallback( self, method )
 	return Utils.createObjectCallback( self, method )
 end
 

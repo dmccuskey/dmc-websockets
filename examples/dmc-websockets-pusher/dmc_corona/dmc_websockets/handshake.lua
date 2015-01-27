@@ -33,7 +33,7 @@ SOFTWARE.
 
 
 --====================================================================--
--- DMC Corona Library : DMC WebSockets Handshake
+--== DMC Corona Library : DMC WebSockets Handshake
 --====================================================================--
 
 

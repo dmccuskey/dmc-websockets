@@ -36,6 +36,7 @@ SOFTWARE.
 --== DMC Corona Library : DMC Websockets
 --====================================================================--
 
+
 --[[
 
 WebSocket support adapted from:
@@ -255,7 +256,7 @@ function WebSocket:__init__( params )
 
 	--== Sanity Check ==--
 
-	if not self.is_intermediate then
+	if self.is_instance then
 		assert( params.uri, "WebSocket: requires parameter 'uri'" )
 	end
 
