@@ -27,18 +27,18 @@ module_config = {
 		]
 	},
 	"examples": {
-		"dir": "examples",
+		"base_dir": "examples",
 		"apps": [
 			{
-				"dir": "dmc-websockets-autobahntestsuite",
+				"exp_dir": "dmc-websockets-autobahntestsuite",
 				"requires": []
 			},
 			{
-				"dir": "dmc-websockets-echo",
+				"exp_dir": "dmc-websockets-echo",
 				"requires": []
 			},
 			{
-				"dir": "dmc-websockets-pusher",
+				"exp_dir": "dmc-websockets-pusher",
 				"requires": []
 			}
 		]
