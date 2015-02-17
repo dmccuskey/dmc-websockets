@@ -59,6 +59,7 @@ local VERSION = "1.2.2"
 local assert, type, rawget, rawset = assert, type, rawget, rawset
 local getmetatable, setmetatable = getmetatable, setmetatable
 
+local sformat = string.format
 local tinsert = table.insert
 local tremove = table.remove
 
@@ -267,6 +268,7 @@ local function initializeObject( obj, params )
 	local parents = obj.__parents
 	for i = #parents, 1, -1 do
 		local parent = parents[i]
+		assert( parent, "Lua Objects: parent is nil, check parent list" )
 
 		rawset( obj, '__parent_lock', parent )
 		if parent.__new__ then
@@ -380,6 +382,7 @@ local function blessObject( inheritance, params )
 
 	-- add Class property, access via getters:supers()
 	o.__parents = inheritance
+	o.__is_dmc = true
 
 	-- create lookup tables - setters, getters
 	o.__setters = {}
@@ -479,7 +482,7 @@ end
 
 
 function ClassBase:__tostring__( id )
-	return tostring(self.NAME) .. " " .. id
+	return sformat( "%s (%s)", self.NAME, id )
 end
 
 
