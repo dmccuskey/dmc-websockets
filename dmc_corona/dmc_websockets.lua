@@ -389,7 +389,7 @@ function WebSocket:_onMessage( msg )
 	local evt = {
 		message=msg
 	}
-	self:dispatchEvent( WebSocket.ONMESSAGE, evt )
+	self:dispatchEvent( WebSocket.ONMESSAGE, evt, {merge=true} )
 end
 
 function WebSocket:_onClose( params )
@@ -400,7 +400,7 @@ function WebSocket:_onClose( params )
 		code=params.code,
 		reason=params.reason
 	}
-	self:dispatchEvent( self.ONCLOSE, evt )
+	self:dispatchEvent( self.ONCLOSE, evt, {merge=true} )
 end
 
 function WebSocket:_onError( params )
@@ -411,7 +411,7 @@ function WebSocket:_onError( params )
 		code=params.code,
 		reason=params.reason
 	}
-	self:dispatchEvent( self.ONERROR, evt )
+	self:dispatchEvent( self.ONERROR, evt, {merge=true} )
 end
 
 
