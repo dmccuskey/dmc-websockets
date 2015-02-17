@@ -111,7 +111,6 @@ dmc_lib_data = _G.__dmc_corona
 
 
 
-
 --====================================================================--
 --== DMC WebSockets
 --====================================================================--
@@ -163,7 +162,6 @@ Patch.addAllPatches()
 
 local StatesMix = LuaStatesMixin.StatesMix
 
--- setup some aliases to make code cleaner
 local newClass = Objects.newClass
 local ObjectBase = Objects.ObjectBase
 
@@ -192,6 +190,7 @@ local ERROR_CODES = {
 
 
 local LOCAL_DEBUG = false
+
 
 
 --====================================================================--
@@ -323,27 +322,33 @@ end
 --======================================================--
 
 
+
 --====================================================================--
 --== Public Methods
 
 
+-- connect()
+--
 function WebSocket:connect()
 	-- print( 'WebSocket:connect' )
 	self:gotoState( WebSocket.STATE_INIT )
 end
 
-
+-- .throttle
+--
 function WebSocket.__setters:throttle( value )
 	-- print( 'WebSocket.__setters:throttle', value )
 	Sockets.throttle = value
 end
 
-
+-- .readyState
+--
 function WebSocket.__getters:readyState()
 	return self._ready_state
 end
 
-
+-- send()
+--
 function WebSocket:send( data, params )
 	-- print( "WebSocket:send", #data )
 	assert( type(data)=='string', "expected string for send()")
@@ -359,7 +364,8 @@ function WebSocket:send( data, params )
 
 end
 
-
+-- close()
+--
 function WebSocket:close()
 	-- print( "WebSocket:close" )
 	local evt = Utils.extend( ws_frame.close.OK, {} )
@@ -370,6 +376,7 @@ end
 
 --====================================================================--
 --== Private Methods
+
 
 --== the following "_on"-methods dispatch event to app client level
 
@@ -1096,9 +1103,9 @@ end
 --======================================================--
 
 
+
 --====================================================================--
 --== Event Handlers
-
 
 
 -- handle connection events from socket
