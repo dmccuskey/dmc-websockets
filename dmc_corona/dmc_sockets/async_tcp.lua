@@ -220,6 +220,7 @@ function ATCPSocket:connect( host, port, params )
 
 					if sock then
 						self._socket = sock
+						self._socket:sni(host)
 					else
 						evt.isError = true
 						evt.emsg = emsg
