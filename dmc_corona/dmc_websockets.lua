@@ -245,6 +245,7 @@ WebSocket.EVENT = 'websocket_event'
 
 WebSocket.ONOPEN = 'onopen'
 WebSocket.ONMESSAGE = 'onmessage'
+WebSocket.ONPONG = 'onpong'
 WebSocket.ONERROR = 'onerror'
 WebSocket.ONCLOSE = 'onclose'
 
@@ -405,6 +406,14 @@ function WebSocket:_onMessage( msg )
 		message=msg
 	}
 	self:dispatchEvent( WebSocket.ONMESSAGE, evt, {merge=true} )
+end
+
+function WebSocket:_onPong( msg )
+	-- print( "WebSocket:_onMessage", msg )
+	local evt = {
+		message=msg
+	}
+	self:dispatchEvent( WebSocket.ONPONG, evt, {merge=true} )
 end
 
 function WebSocket:_onClose( params )
@@ -603,7 +612,17 @@ function WebSocket:_receiveFrame()
 			end
 
 		elseif fcode == ws_types.pong then
-			-- pass
+			if not self:_insertFrameData( data, ftype ) then
+				self:_close{
+					code=ws_close.PROTO_ERR.code,
+					reason=ws_close.PROTO_ERR.reason,
+				}
+				return
+			end
+			if fin then
+				local msg = self:_processCurrentFrame()
+				self:_onPong( msg )
+			end
 
 		end
 	end

@@ -220,6 +220,7 @@ function ATCPSocket:connect( host, port, params )
 
 					if sock then
 						self._socket = sock
+						self._socket:sni(host)
 					else
 						evt.isError = true
 						evt.emsg = emsg
@@ -237,8 +238,6 @@ function ATCPSocket:connect( host, port, params )
 					end
 
 					self._socket:settimeout( 0 ) -- need to re-set for wrapped socket
-					self._socket:setoption( 'keepalive', true )
-					self._socket:setoption( 'tcp-nodelay', true )
 
 				end
 
