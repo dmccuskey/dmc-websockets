@@ -78,11 +78,16 @@ local function webSocketsEvent_handler( event )
 		print( "Received event: ONERROR" )
 		-- Utils.print( event )
 
-	end
+	elseif evt_type == ws.LATENCY then
+        print('Current latency:', event.latency)
+    end
 end
 
 
 ws = WebSockets{
-	uri='ws://echo.websocket.org'
+	uri='ws://echo.websocket.org',
+	keepalive = 1000, 
+    retries = 4, 
+    auto_reconnect = true
 }
 ws:addEventListener( ws.EVENT, webSocketsEvent_handler )
