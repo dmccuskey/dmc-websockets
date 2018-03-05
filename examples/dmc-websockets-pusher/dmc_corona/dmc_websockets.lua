@@ -247,7 +247,7 @@ WebSocket.ONOPEN = 'onopen'
 WebSocket.ONMESSAGE = 'onmessage'
 WebSocket.ONERROR = 'onerror'
 WebSocket.ONCLOSE = 'onclose'
-
+WebSocket.ONLATENCY = 'onlatency'
 
 --======================================================--
 -- Start: Setup DMC Objects
@@ -257,6 +257,8 @@ function WebSocket:__init__( params )
 	params = params or {}
 	if params.auto_connect==nil then params.auto_connect=true end
 	if params.auto_reconnect==nil then params.auto_reconnect=false end
+	if params.keepalive == nil then params.keepalive = 1000 end
+	if params.retries == nil then params.retries = 4 end
 
 	self:superCall( ObjectBase, '__init__', params )
 	self:superCall( StatesMix, '__init__', params )
@@ -274,6 +276,9 @@ function WebSocket:__init__( params )
 	self._port = params.port
 	self._query = params.query
 	self._protocols = params.protocols
+	self._keepalive = params.keepalive
+	self._retries = params.retries
+	self._retried = 0
 
 	self._auto_connect = params.auto_connect
 	self._auto_reconnect = params.auto_reconnect
@@ -416,6 +421,17 @@ function WebSocket:_onClose( params )
 		reason=params.reason
 	}
 	self:dispatchEvent( self.ONCLOSE, evt, {merge=true} )
+	if self._auto_reconnect then
+		self:_reconnect()
+	end
+end
+
+function WebSocket:_reconnect()
+	-- print( "WebSocket:_reconnect" )
+	self._ba = ByteArray:new()
+	self._socket = nil
+	self:setState(WebSocket.STATE_CREATE)
+	self:connect()
 end
 
 function WebSocket:_onError( params )
@@ -604,7 +620,7 @@ function WebSocket:_receiveFrame()
 
 		elseif fcode == ws_types.pong then
 			-- pass
-
+			self:_calculateLatency()
 		end
 	end
 
@@ -991,6 +1007,9 @@ function WebSocket:do_state_connected( params )
 
 	self:_onOpen()
 
+    --ping server to detect disconnection
+    self:_startKeepAliveTimer()
+
 	-- check if more data after reading header
 	self:_receiveFrame()
 
@@ -1178,7 +1197,36 @@ function WebSocket:_socketDataEvent_handler( event )
 
 end
 
+function WebSocket:_startKeepAliveTimer()
+    if WebSocket._keepAliveTimer then return end
+    WebSocket._keepAliveTimer = timer.performWithDelay(self._keepalive, function()
+        if self._retried > self._retries then
+            print('disconnected')
+            self._retried = 0
+            self:close()
+            self:_stopKeepAliveTimer()
+        else
+            if self._retried > 0 then
+                print('retried: ', self._retried)
+            end
+        end
+        self._sent_ping_at = os.time()
+        self:_sendPing('')
+        self._retried = self._retried + 1
+    end, 0)
+end
 
+function WebSocket:_stopKeepAliveTimer()
+    if WebSocket._keepAliveTimer then 
+        timer.cancel(WebSocket._keepAliveTimer)
+        WebSocket._keepAliveTimer = nil
+    end
+end
 
+function WebSocket:_calculateLatency()
+    self._retried = 0
+    self._latency = self._sent_ping_at - os.time()
+    self:dispatchEvent(self.ONLATENCY, {latency = self._latency}, {merge = true})
+end
 
 return WebSocket
