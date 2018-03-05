@@ -9,7 +9,7 @@
 --====================================================================--
 
 
-print( '\n\n##############################################\n\n' )
+print('\n\n##############################################\n\n')
 
 
 --====================================================================--
@@ -36,10 +36,10 @@ local count = 0
 
 
 local function sendMessage()
-	count = count + 1
-	local str = "Current app time: " .. tostring( system.getTimer() )
-	print( "Sending message (" .. tostring( count ) .. "): '" .. str .. "'")
-	ws:send( str )
+    count = count + 1
+    local str = "Current app time: " .. tostring(system.getTimer())
+    print("Sending message (" .. tostring(count) .. "): '" .. str .. "'")
+    ws:send(str)
 end
 
 
@@ -48,41 +48,47 @@ end
 --== Main Functions
 
 
-local function webSocketsEvent_handler( event )
-	-- print( "webSocketsEvent_handler", event.type )
-	local evt_type = event.type
+local function webSocketsEvent_handler(event)
+    -- print( "webSocketsEvent_handler", event.type )
+    local evt_type = event.type
 
-	if evt_type == ws.ONOPEN then
-		print( 'Received event: ONOPEN' )
+    if evt_type == ws.ONOPEN then
+        print('Received event: ONOPEN')
 
-		print("=== Sending " .. tostring( num_msgs ) .. " messages ===\n")
-		sendMessage()
 
-	elseif evt_type == ws.ONMESSAGE then
-		local msg = event.message
 
-		print( "Received event: ONMESSAGE" )
-		print( "echoed message: '" .. tostring( msg.data ) .. "'\n\n" )
+        -- print("=== Sending " .. tostring( num_msgs ) .. " messages ===\n")
+        -- sendMessage()
 
-		if count == num_msgs then
-			ws:close()
-		else
-			timer.performWithDelay( 500, function() sendMessage() end)
-		end
+    elseif evt_type == ws.ONMESSAGE then
+        local msg = event.message
 
-	elseif evt_type == ws.ONCLOSE then
-		print( "Received event: ONCLOSE" )
-		print( 'code:reason', event.code, event.reason )
+        print("Received event: ONMESSAGE")
+        print("echoed message: '" .. tostring(msg.data) .. "'\n\n")
 
-	elseif evt_type == ws.ONERROR then
-		print( "Received event: ONERROR" )
-		-- Utils.print( event )
+        if count == num_msgs then
+            ws:close()
+        else
+            timer.performWithDelay(500, function() sendMessage() end)
+        end
 
-	end
+    elseif evt_type == ws.ONCLOSE then
+        -- print("Received event: ONCLOSE")
+        -- print('code:reason', event.code, event.reason)
+
+    elseif evt_type == ws.ONERROR then
+        print("Received event: ONERROR")
+        -- Utils.print( event )
+    elseif evt_type == ws.LATENCY then
+        -- print('latency', event.latency)
+    end
 end
 
 
 ws = WebSockets{
-	uri='ws://echo.websocket.org'
+    keepalive = 1000, 
+    retries = 2, 
+    auto_reconnect = true, 
+    uri = 'ws://localhost:9030/'
 }
-ws:addEventListener( ws.EVENT, webSocketsEvent_handler )
+ws:addEventListener(ws.EVENT, webSocketsEvent_handler)
