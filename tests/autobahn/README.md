@@ -11,8 +11,26 @@ provides Corona's `Runtime`, `timer` and `system` objects. No Solar2D needed.
 - Lua 5.1 with `luasocket`, `luafilesystem`, `dkjson` (e.g. via `hererocks`)
 - a `lua-corovel` checkout
 
-By default `run.sh` looks for `../tools/lua51/bin/lua` and `../lua-corovel`
-beside this repo; override with `LUA=` and `COROVEL=`.
+By default `run.sh` expects Lua and lua-corovel beside this repo:
+
+```
+my-projects/
+  dmc-websockets/          this repo
+  lua-corovel/             git clone https://github.com/dmccuskey/lua-corovel.git
+  tools/lua51/bin/lua      Lua 5.1 (see below)
+```
+
+To use other locations, set `LUA=` and `COROVEL=` to absolute paths, e.g.
+`COROVEL=/path/to/lua-corovel tests/autobahn/run.sh after`. To build the Lua
+tools, from the folder that holds this repo:
+
+```sh
+python3 -m venv tools/py && tools/py/bin/pip install hererocks
+tools/py/bin/hererocks tools/lua51 -l 5.1 -r latest
+for r in luasocket luafilesystem dkjson luabitop; do tools/lua51/bin/luarocks install $r; done
+```
+
+`tests/run_unit.sh` uses the same `LUA` default.
 
 ## Usage
 
