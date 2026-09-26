@@ -14,7 +14,7 @@ local WebSockets = require 'dmc_corona.dmc_websockets'
 | [`ws:close()`](#close) | method | Close the connection |
 | [`ws:connect()`](#connect) | method | Connect, when created with `auto_connect=false` |
 | [`ws.readyState`](#readystate) | property | Connection status |
-| [`ws.throttle`](#throttle) | property | How often sockets are checked for data (no effect yet) |
+| [`ws.throttle`](#throttle) | property | How often sockets are checked for data |
 | [`ws:removeSelf()`](#removeself) | method | Destroy the object |
 
 ## Creating a Connection
@@ -37,7 +37,7 @@ The connection starts right away, unless `auto_connect` is `false`.
 | `port` | from `uri` | Port, overriding the one in `uri` (default 80 for `ws://`, 443 for `wss://`) |
 | `auto_connect` | `true` | Connect as soon as the object is created. With `false`, call [`connect()`](#connect) |
 | `ssl_params` | see [TLS Settings](#tls-settings) | TLS settings for `wss://` |
-| `throttle` | `MEDIUM` | Currently has no effect, see [`throttle`](#throttle) |
+| `throttle` | `OFF` | How often sockets are checked for data, see [`throttle`](#throttle) |
 
 Not implemented: `auto_reconnect` is accepted but has no effect, and `query` is ignored (put the query string in `uri`). There is no `Origin` header and no extension support (such as compression).
 
@@ -137,14 +137,16 @@ The connection status, one of:
 
 ### throttle
 
-Meant to set how often the library checks sockets for incoming data, shared by all connections. **It currently has no effect:** sockets are checked once per frame whatever the setting, so a round trip takes one frame (see [Performance](compliance.md#performance-140)). The constants are kept for compatibility:
+How often the library checks sockets for incoming data, shared by all connections. The default, `OFF`, checks once per frame, so a round trip takes one frame (see [Performance](compliance.md#performance-140)). The other settings check less often, which saves a little work per frame but adds latency: with `MEDIUM`, a round trip takes about 66 ms.
 
-| Constant | Intended check interval |
+| Constant | Checks sockets |
 |---|---|
-| `ws.OFF` | every frame |
-| `ws.LOW` | about 30 times a second |
-| `ws.MEDIUM` | about 15 times a second (the default) |
-| `ws.HIGH` | once a second |
+| `ws.OFF` | every frame (the default) |
+| `ws.LOW` | at most every 33 ms, about 30 times a second |
+| `ws.MEDIUM` | at most every 66 ms, about 15 times a second |
+| `ws.HIGH` | at most once a second |
+
+Setting `ws.throttle` changes the setting for all connections. Each connection also applies its `throttle` option when it connects, so a connection created without one sets it back to `OFF`.
 
 ## Constants
 

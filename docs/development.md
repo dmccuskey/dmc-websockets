@@ -66,7 +66,6 @@ These are ideas, not plans. Each needs discussion and a concrete use case before
 - **Wait for the server's close after a protocol error:** RFC 6455 section 7.1.7 prefers that the client stop reading and let the server close the TCP connection; the client currently closes it itself.
 - **Faster receive buffer:** each read copies all unread bytes, which is quadratic in the message size. A 16MB echo takes about 3.5 seconds.
 - **Strict mid-frame UTF-8 checks:** validate text as each piece of a frame arrives, which would make Autobahn cases 6.4.3 and 6.4.4 strict.
-- **Make `throttle` work, or remove it:** dmc-sockets ignores the interval and checks sockets every frame.
 - **Faster bit operations outside Solar2D:** the bit-operations shim (lua-bit-shim) tries `plugin.bit`, then a pure-Lua version; trying LuaBitOp (`bit`) in between would make plain-Lua use, including the test suites, faster.
 - **Certificate verification by default** for `wss://`, with a way to supply CA certificates on each platform.
 - **Send `USER_AGENT`** with the handshake.
