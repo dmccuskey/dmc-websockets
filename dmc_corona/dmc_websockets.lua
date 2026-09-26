@@ -487,7 +487,7 @@ function WebSocket:_handleHttpRespose()
 	local _, e_pos = ba:search( '\r\n\r\n' )
 	if e_pos == nil then return end
 
-	ba.pos = 1
+	ba.position = 1
 	local h_str = ba:readBuf( e_pos )
 
 	-- process header
@@ -616,7 +616,7 @@ function WebSocket:_receiveFrame()
 	local err = nil
 	repeat
 
-		local position = self._ba.pos -- save in case of errors
+		local position = self._ba.position -- save in case of errors
 		try{
 			function()
 				handleWSFrame( ws_frame.receiveFrame( self._ba ) )
@@ -624,7 +624,7 @@ function WebSocket:_receiveFrame()
 			catch{
 				function(e)
 					err=e
-					self._ba.pos = position
+					self._ba.position = position
 				end
 			}
 		}
