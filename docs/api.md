@@ -14,7 +14,7 @@ local WebSockets = require 'dmc_corona.dmc_websockets'
 | [`ws:close()`](#close) | method | Close the connection |
 | [`ws:connect()`](#connect) | method | Connect, when created with `auto_connect=false` |
 | [`ws.readyState`](#readystate) | property | Connection status |
-| [`ws.throttle`](#throttle) | property | How often sockets are checked for data |
+| [`ws.throttle`](#throttle) | property | How often sockets are checked for data (no effect yet) |
 | [`ws:removeSelf()`](#removeself) | method | Destroy the object |
 
 ## Creating a Connection
@@ -37,7 +37,7 @@ The connection starts right away, unless `auto_connect` is `false`.
 | `port` | from `uri` | Port, overriding the one in `uri` (default 80 for `ws://`, 443 for `wss://`) |
 | `auto_connect` | `true` | Connect as soon as the object is created. With `false`, call [`connect()`](#connect) |
 | `ssl_params` | see [TLS Settings](#tls-settings) | TLS settings for `wss://` |
-| `throttle` | `MEDIUM` | See [`throttle`](#throttle) |
+| `throttle` | `MEDIUM` | Currently has no effect, see [`throttle`](#throttle) |
 
 Not implemented: `auto_reconnect` is accepted but has no effect, and `query` is ignored (put the query string in `uri`). There is no `Origin` header and no extension support (such as compression).
 
@@ -137,13 +137,13 @@ The connection status, one of:
 
 ### throttle
 
-How often the library checks sockets for incoming data. The setting is shared by all connections, and each new connection resets it to its own `throttle` option (`MEDIUM` if not given).
+Meant to set how often the library checks sockets for incoming data, shared by all connections. **It currently has no effect:** sockets are checked once per frame whatever the setting, so a round trip takes one frame (see [Performance](compliance.md#performance-140)). The constants are kept for compatibility:
 
-| Constant | Check interval |
+| Constant | Intended check interval |
 |---|---|
 | `ws.OFF` | every frame |
 | `ws.LOW` | about 30 times a second |
-| `ws.MEDIUM` | about 15 times a second (default) |
+| `ws.MEDIUM` | about 15 times a second (the default) |
 | `ws.HIGH` | once a second |
 
 ## Constants
