@@ -74,29 +74,30 @@ local function newLabel( text, y, size, color )
 end
 
 local function buildUI()
+	display.setStatusBar( display.HiddenStatusBar )
 	display.setDefault( 'background', 0.08, 0.09, 0.11 )
 
-	newLabel( 'dmc-websockets '..WebSockets.VERSION, 30, 20 )
-	newLabel( 'Autobahn|Testsuite at '..SERVER, 54, 12, { 0.6, 0.6, 0.65 } )
+	newLabel( 'dmc-websockets '..WebSockets.VERSION, 28, 20 )
+	newLabel( 'Autobahn|Testsuite at '..SERVER, 52, 12, { 0.6, 0.6, 0.65 } )
 
 	-- progress bar
 	local bar_w = W-24
-	local bg = display.newRect( W/2, 84, bar_w, 10 )
+	local bg = display.newRect( W/2, 80, bar_w, 10 )
 	bg:setFillColor( 0.2, 0.2, 0.24 )
-	ui.bar = display.newRect( 12, 84, 1, 10 )
+	ui.bar = display.newRect( 12, 80, 1, 10 )
 	ui.bar.anchorX = 0
 	ui.bar:setFillColor( unpack( COLORS['OK'] ) )
 	ui.bar.max_w = bar_w
-	ui.progress = newLabel( 'Connecting...', 104, 13 )
+	ui.progress = newLabel( 'Connecting...', 100, 13 )
 
-	ui.case_id = newLabel( '', 140, 16 )
+	ui.case_id = newLabel( '', 136, 16 )
 	ui.case_desc = newLabel( '', 184, 11, { 0.75, 0.75, 0.8 } )
 	ui.case_desc.anchorY = 0
-	ui.case_desc.y = 154
+	ui.case_desc.y = 150 -- up to 3 lines, see showCase()
 
 	ui.counts = {}
 	for i, name in ipairs( BEHAVIORS ) do
-		local y = 260 + i*26
+		local y = 200 + i*26
 		local dot = display.newCircle( 22, y, 6 )
 		dot:setFillColor( unpack( COLORS[ name ] ) )
 		local label = display.newText{ text=name, x=36, y=y, font=FONT, fontSize=14 }
@@ -106,9 +107,9 @@ local function buildUI()
 		ui.counts[ name ] = count
 	end
 
-	ui.status = newLabel( '', 450, 12, { 0.75, 0.75, 0.8 } )
+	ui.status = newLabel( '', 380, 12, { 0.75, 0.75, 0.8 } )
 	ui.status.anchorY = 0
-	ui.status.y = 430
+	ui.status.y = 360
 end
 
 local function showCase( id, desc )
