@@ -1,3 +1,7 @@
 *.sublime-project
 *.sublime-workspace
 .snakemake
+.DS_Store
+
+# Autobahn raw reports (regenerate with tests/autobahn/run.sh)
+tests/autobahn/reports/
