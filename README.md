@@ -39,11 +39,12 @@ Prerequisites: the [Solar2D](https://solar2d.com/) Simulator and a copy of this 
 
    **Going further:** keep libraries in a subfolder with [the `LUA_PATH` setting](docs/installation.md#project-layout).
 
-2. **Enable networking and TLS.** Add the OpenSSL plugin to `build.settings`, which `wss://` needs:
+2. **Add the plugins.** Create `build.settings` (or add to yours) with the bit-operations plugin, which makes framing fast, and the OpenSSL plugin, which `wss://` needs:
 
    ```lua
    settings = {
    	plugins = {
+   		["plugin.bit"] = { publisherId = "com.coronalabs" },
    		["plugin.openssl"] = { publisherId = "com.coronalabs" },
    	},
    }
@@ -80,7 +81,7 @@ Prerequisites: the [Solar2D](https://solar2d.com/) Simulator and a copy of this 
    received:	hello from Solar2D
    ```
 
-   The first message is a greeting this particular server sends; the second is your echo. If `connected` never appears, the console shows the reason; for a `wss://` address the usual cause is a missing `plugin.openssl` in `build.settings`.
+   The first message is a greeting this particular server sends; the second is your echo. If `connected` never appears, the console shows the reason; for a `wss://` address, check that `plugin.openssl` is in `build.settings`.
 
    **Going further:** send binary data, choose subprotocols and handle errors with the [API reference](docs/api.md).
 

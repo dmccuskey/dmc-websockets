@@ -1,6 +1,6 @@
 # Installation
 
-The [Quick Start](../README.md#quick-start) is the short path: copy three items into your project and add one plugin. This page covers the options around it.
+The [Quick Start](../README.md#quick-start) is the short path: copy three items into your project and add two plugins. This page covers the options around it.
 
 ## What to Copy
 
@@ -47,17 +47,19 @@ local WebSockets = require 'lib.dmc_corona.dmc_websockets'
 
 ## Plugins
 
-`wss://` (TLS) connections need Solar2D's OpenSSL plugin. Add it to `build.settings`:
+Add two Solar2D plugins to `build.settings`:
 
 ```lua
 settings = {
 	plugins = {
+		["plugin.bit"] = { publisherId = "com.coronalabs" },
 		["plugin.openssl"] = { publisherId = "com.coronalabs" },
 	},
 }
 ```
 
-Plain `ws://` connections need no plugins.
+- `plugin.bit` provides fast bit operations for framing. Without it the library falls back to a slower pure-Lua version, and the Simulator warns `plugin.bit is not configured in build.settings`.
+- `plugin.openssl` is needed for `wss://` (TLS) connections. Plain `ws://` works without it.
 
 ## Android
 
