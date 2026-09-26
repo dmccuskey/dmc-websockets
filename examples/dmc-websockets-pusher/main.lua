@@ -19,7 +19,6 @@ print( '\n\n##############################################\n\n' )
 
 
 local WebSockets = require 'dmc_corona.dmc_websockets'
-local SSLParams = require 'dmc_corona.dmc_sockets.ssl_params'
 -- local Utils = require( "dmc_corona.dmc_utils" )
 
 
@@ -67,7 +66,6 @@ ws = WebSockets{
 	uri='wss://ws.pusherapp.com:443/app/a6fc0e5ee5adc489d1ac?client=lua&version=1.0&protocol=7',
 	-- port can be here, or in URI
 	-- port=443, -- 80/443
-	ssl_params = {protocol=SSLParams.TLS_V1},
 	protocols='7'
 }
 ws:addEventListener( ws.EVENT, webSocketsEvent_handler )
