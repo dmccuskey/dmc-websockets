@@ -112,6 +112,36 @@ end
 
 
 --====================================================================--
+--== Test: Masking
+
+
+-- client frames are masked; unmask with a plain byte-by-byte xor
+-- at lengths around the 4-byte mask and the 2000-byte chunk size
+function test_buildMaskedFrame()
+	local bit = require 'lib.dmc_lua.bit'
+	for _, len in ipairs{ 1, 2, 3, 4, 5, 125, 126, 1999, 2000, 2001, 2003, 70001 } do
+		local data = string.rep( "BAsd7&jh23", math.ceil( len/10 ) ):sub( 1, len )
+		local msg = {
+			start=1, opcode=0x2, masked=true,
+			getAvailable=function() return 0 end,
+			read=function() return data end
+		}
+		local wire = ws_frame.buildFrames{ message=msg }.frame
+		local hlen = ( len <= 125 and 2 ) or ( len <= 0xffff and 4 ) or 10
+		local mask = { wire:byte( hlen+1, hlen+4 ) }
+		local payload = wire:sub( hlen+5 )
+		assert_equal( #payload, len )
+		local unmasked = {}
+		for i=1,len do
+			unmasked[i] = string.char( bit.bxor( payload:byte(i), mask[(i-1)%4+1] ) )
+		end
+		assert_equal( table.concat( unmasked ), data, "length "..len )
+	end
+end
+
+
+
+--====================================================================--
 --== Test: UTF-8
 
 

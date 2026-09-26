@@ -21,6 +21,7 @@ Passes the Autobahn|Testsuite (sections 1-10: 296 OK, 2 non-strict, 3 informatio
 - `WebSockets.VERSION` and the user agent now match the library version.
 - The default `throttle` is `OFF` (a check every frame; it was nominally `MEDIUM`), so apps behave as before now that the setting works.
 - The bundled libraries (dmc-sockets, DMC Lua library) are updated.
+- Sending large messages is faster: masking the outgoing frame used a bit-library call per byte and now uses lookup tables. Echoing a 16MB message takes 1.0 s instead of 3.9 s headless, and 1.1 s instead of 1.5 s in Solar2D.
 
 ### Added
 
