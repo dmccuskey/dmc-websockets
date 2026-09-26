@@ -492,7 +492,7 @@ function WebSocket:_handleHttpRespose()
 	local h_str = ba:readBuf( e_pos )
 
 	-- process header
-	if ws_handshake.checkResponse( self:_processHeaderString( h_str ), self._ws_req_key ) then
+	if ws_handshake.checkResponse( self:_processHeaderString( h_str ), self._ws_req_key, self._protocols ) then
 		self:gotoState( WebSocket.STATE_CONNECTED )
 
 	else
