@@ -19,7 +19,10 @@ Version 1.4.0, sections 1 to 10 (301 cases). Sections 12 and 13 test compression
 | 10 Miscellaneous | 1 | 1 | | | |
 | **Total** | **301** | **296** | **2** | **3** | **0** |
 
-The results are the same whether the client runs headless in plain Lua or in the Solar2D Simulator (build 2026.3731): no case differs.
+The results are the same whether the client runs headless in plain Lua or in the Solar2D Simulator (build 2026.3731): no case differs. The [Autobahn example](../examples/dmc-websockets-autobahntestsuite/) runs the whole suite in the Simulator and shows its progress on screen:
+
+<img src="../examples/dmc-websockets-autobahntestsuite/images/autobahn-running.png" width="320" alt="The example mid-run: 166 of 301 cases, case 6.21.6, 163 OK and 2 non-strict so far">
+<img src="../examples/dmc-websockets-autobahntestsuite/images/autobahn-complete.png" width="320" alt="The finished run: 301 of 301 cases, 296 OK, 2 non-strict, 3 informational, 0 failed, with the cases that weren't OK listed">
 
 For comparison, version 1.3.1 (2015) had 177 OK and 117 failed, mostly in UTF-8 handling (73 failed), large messages (37 failed in section 9) and messages split across network reads (sections 1, 2 and 5).
 

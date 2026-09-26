@@ -29,6 +29,11 @@ end )
 - Passes the [Autobahn|Testsuite](docs/compliance.md): 296 of 301 cases OK, none failed
 - Pure Lua, MIT licensed
 
+The [Autobahn example](examples/dmc-websockets-autobahntestsuite/) runs the whole test suite inside the Solar2D Simulator:
+
+<img src="examples/dmc-websockets-autobahntestsuite/images/autobahn-running.png" width="320" alt="The example mid-run: 166 of 301 cases, case 6.21.6, 163 OK and 2 non-strict so far">
+<img src="examples/dmc-websockets-autobahntestsuite/images/autobahn-complete.png" width="320" alt="The finished run: 301 of 301 cases, 296 OK, 2 non-strict, 3 informational, 0 failed, with the cases that weren't OK listed">
+
 ## Quick Start
 
 This gets a Solar2D app sending and receiving messages through a public echo server in about 10 minutes, in the Solar2D Simulator on macOS or Windows.
