@@ -72,9 +72,14 @@ local LOCAL_DEBUG = false
 --== Support Functions
 
 
+-- use the Corona plugins, or plain luasec outside Corona
+--
 local function loadSSL()
-	local openssl = require 'plugin.openssl'
-	ssl = require 'plugin_luasec_ssl'
+	local success = pcall( function()
+		local openssl = require 'plugin.openssl'
+		ssl = require 'plugin_luasec_ssl'
+	end )
+	if not success then ssl = require 'ssl' end
 end
 
 
@@ -225,6 +230,9 @@ function ATCPSocket:connect( host, port, params )
 
 					if sock then
 						self._socket = sock
+						-- send the host name (SNI); servers behind
+						-- shared hosts and CDNs reject handshakes without it
+						if sock.sni then sock:sni( host ) end
 					else
 						evt.isError = true
 						evt.emsg = emsg
@@ -241,9 +249,9 @@ function ATCPSocket:connect( host, port, params )
 						return
 					end
 
-					self._socket:settimeout( 0 ) -- need to re-set for wrapped socket
-					self._socket:setoption( 'keepalive', true )
-					self._socket:setoption( 'tcp-nodelay', true )
+					-- need to re-set for wrapped socket. socket options
+					-- were set on the plain socket; wrapped ones have no setoption()
+					self._socket:settimeout( 0 )
 
 				end
 
