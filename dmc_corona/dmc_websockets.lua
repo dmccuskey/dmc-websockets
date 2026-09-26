@@ -49,7 +49,7 @@ WebSocket support adapted from:
 
 -- Semantic Versioning Specification: http://semver.org/
 
-local VERSION = "1.3.1"
+local VERSION = "1.4.0"
 
 
 
@@ -208,7 +208,7 @@ local LOCAL_DEBUG = false
 local WebSocket = newClass( { ObjectBase, StatesMix }, {name="DMC WebSocket"} )
 
 -- version for the the group of WebSocket files
-WebSocket.VERSION = '1.2.0'
+WebSocket.VERSION = VERSION
 WebSocket.USER_AGENT = 'dmc_websockets/'..WebSocket.VERSION
 
 --== Message Type Constants
