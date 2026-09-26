@@ -11,6 +11,7 @@ Passes the Autobahn|Testsuite (sections 1-10: 296 OK, 2 non-strict, 3 informatio
 - `wss://` connections failed with `attempt to call method 'setoption'`, servers on shared hosts and CDNs refused them (no SNI), and TLS 1.0 was forced ([#6](https://github.com/dmccuskey/dmc-websockets/issues/6); fixed in dmc-sockets). The TLS version is now negotiated.
 - Close frames sent the reason as a number (`"1002"`) instead of text.
 - Handshake: accept `Connection` headers with several tokens and headers without a space after the colon.
+- The `throttle` setting had no effect (fixed in dmc-sockets). It now spaces out socket checks; see the change to its default below.
 
 ### Changed
 
@@ -18,6 +19,7 @@ Passes the Autobahn|Testsuite (sections 1-10: 296 OK, 2 non-strict, 3 informatio
 - Stricter protocol checks: masked frames from the server and close codes of 5000 and above are rejected, and the connection fails if the server selects a subprotocol or extension the client didn't request. Close codes 1012-1014 are accepted.
 - `ssl_params.protocol` defaults to `'any'` (was `'tlsv1'`) and accepts `'tlsv1_1'`, `'tlsv1_2'` and `'tlsv1_3'`.
 - `WebSockets.VERSION` and the user agent now match the library version.
+- The default `throttle` is `OFF` (a check every frame; it was nominally `MEDIUM`), so apps behave as before now that the setting works.
 - The bundled libraries (dmc-sockets, DMC Lua library) are updated.
 
 ### Added
