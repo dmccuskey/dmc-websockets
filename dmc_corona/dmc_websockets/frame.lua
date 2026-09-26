@@ -60,6 +60,7 @@ local VERSION = "1.2.0"
 local bit = require 'lib.dmc_lua.bit'
 local ByteArray = require 'lib.dmc_lua.lua_bytearray'
 local Error = require 'dmc_websockets.exception'
+local UTF8 = require 'dmc_websockets.utf8'
 local Utils = require 'lib.dmc_lua.lua_utils'
 
 
@@ -412,6 +413,13 @@ readPayloadData = function( frame, bytearray )
 				return
 			end
 
+		end
+
+		if reason and not UTF8.isValid( reason ) then
+			error( ProtocolError{
+				code=CLOSE_CODES.INVALID_DATA.code, reason=CLOSE_CODES.INVALID_DATA.reason,
+				message="Invalid UTF-8 in close reason" } )
+			return
 		end
 	end
 end
