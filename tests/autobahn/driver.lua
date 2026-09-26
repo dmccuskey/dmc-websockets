@@ -9,6 +9,7 @@
 --   AUTOBAHN_AGENT default dmc_websockets
 --   CASE_TIMEOUT   seconds before a hung case is abandoned, default 60
 --   MAX_CASES      only run the first N cases (for smoke tests)
+--   CASES          comma-separated case ids to run, eg "2.6,5.5,6.3.1"
 --====================================================================--
 
 
@@ -26,6 +27,14 @@ local SERVER = os.getenv( 'AUTOBAHN_URL' ) or 'ws://127.0.0.1:9001'
 local AGENT = os.getenv( 'AUTOBAHN_AGENT' ) or 'dmc_websockets'
 local CASE_TIMEOUT = tonumber( os.getenv( 'CASE_TIMEOUT' ) or 60 ) * 1000
 local MAX_CASES = tonumber( os.getenv( 'MAX_CASES' ) or '' )
+local CASE_IDS = nil -- list of case ids from CASES, else run by index
+
+if os.getenv( 'CASES' ) then
+	CASE_IDS = {}
+	for id in string.gmatch( os.getenv( 'CASES' ), '[%d%.]+' ) do
+		table.insert( CASE_IDS, id )
+	end
+end
 
 local ws
 local case_count = 0
@@ -85,7 +94,12 @@ local function getCaseCount()
 end
 
 runCase = function( idx )
-	local path = string.format( '/runCase?case=%d&agent=%s', idx, AGENT )
+	local path
+	if CASE_IDS then
+		path = string.format( '/runCase?casetuple=%s&agent=%s', CASE_IDS[ idx ], AGENT )
+	else
+		path = string.format( '/runCase?case=%d&agent=%s', idx, AGENT )
+	end
 	local case_start = system.getTimer()
 
 	openSocket( path, function( event )
@@ -95,8 +109,9 @@ runCase = function( idx )
 
 		elseif event.type == ws.ONCLOSE or event.type == ws.ONERROR then
 			cancelCaseTimer()
-			log( string.format( 'case %3d/%d  %-7s code=%-5s %6dms', idx, case_count,
-				event.type, tostring( event.code ), system.getTimer()-case_start ) )
+			log( string.format( 'case %3d/%d %-8s %-7s code=%-5s %6dms', idx, case_count,
+				CASE_IDS and CASE_IDS[ idx ] or '', event.type, tostring( event.code ),
+				system.getTimer()-case_start ) )
 			nextCase()
 		end
 	end )
@@ -131,7 +146,12 @@ updateReports = function()
 end
 
 
-getCaseCount()
+if CASE_IDS then
+	case_count = #CASE_IDS
+	nextCase()
+else
+	getCaseCount()
+end
 
 -- keep Corovel's event loop running; we exit via os.exit()
 return true
