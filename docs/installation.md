@@ -12,11 +12,11 @@ From this repository, copy into your Solar2D project:
 | `dmc_corona_boot.lua` | Loader that reads `dmc_corona.cfg` and lets the libraries find each other |
 | `dmc_corona.cfg` | Configuration for the DMC libraries |
 
-`dmc_corona_boot.lua` and `dmc_corona.cfg` must be at the top of the project, next to `main.lua`. The `dmc_corona/` folder is self-contained: if your project already has one from another DMC library, merge the two (files with the same name are the same library; keep the newer copy).
+`dmc_corona_boot.lua` and `dmc_corona.cfg` must be at the root level of the project folder. The `dmc_corona/` folder is self-contained: if your project already has one from another DMC library, merge the two (files with the same name are the same library; keep the newer copy).
 
 ## Project Layout
 
-By default `dmc_corona/` sits next to `main.lua` and you load the library with:
+By default `dmc_corona/` is at the root level of the project folder too, and you load the library with:
 
 ```lua
 local WebSockets = require 'dmc_corona.dmc_websockets'

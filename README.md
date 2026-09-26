@@ -35,7 +35,7 @@ This gets a Solar2D app sending and receiving messages through a public echo ser
 
 Prerequisites: the [Solar2D](https://solar2d.com/) Simulator and a copy of this repository (`git clone https://github.com/dmccuskey/dmc-websockets.git`, or download the ZIP from GitHub).
 
-1. **Copy the library into your project.** From this repository, copy `dmc_corona/`, `dmc_corona_boot.lua` and `dmc_corona.cfg` into your project folder, next to `main.lua`.
+1. **Copy the library into your project.** From this repository, copy `dmc_corona/`, `dmc_corona_boot.lua` and `dmc_corona.cfg` into your project, at the root level of the project folder.
 
    **Going further:** keep libraries in a subfolder with [the `LUA_PATH` setting](docs/installation.md#project-layout).
 
