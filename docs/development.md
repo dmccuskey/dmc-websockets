@@ -28,7 +28,7 @@ CASES=2.6,9.1.3 tests/autobahn/run.sh quick # selected cases
 python3 tests/autobahn/summarize.py tests/autobahn/reports/before tests/autobahn/reports/after
 ```
 
-Starts the Autobahn fuzzing server in Docker, runs every case against dmc-websockets, and saves the reports to `tests/autobahn/reports/<label>/` (not committed). `summarize.py` prints counts per section, or the cases that changed between two runs. The Docker image is x86-only and runs under emulation on Apple Silicon; the first start takes a minute or two. Current results are on the [compliance page](compliance.md).
+Starts the Autobahn fuzzing server in Docker, runs every case against dmc-websockets, and saves the reports to `tests/autobahn/reports/<label>/` (not committed). `summarize.py` prints counts per section, or the cases that changed between two runs. The Docker image is x86-only and runs under emulation on Apple Silicon; the first start takes a minute or two. Current results are on the [compliance page](compliance.md). To run the client in Solar2D instead, start only the server with `tests/autobahn/server.sh start` and open the [Autobahn example](../examples/dmc-websockets-autobahntestsuite/) in the Simulator.
 
 Run the full suite before merging any change to framing, the handshake or the socket code, and compare against the previous run.
 
