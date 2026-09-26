@@ -2,6 +2,13 @@
 
 Runs the [Autobahn|Testsuite](https://github.com/crossbario/autobahn-testsuite) conformance cases against dmc-websockets inside a Solar2D app. The screen shows the current case, a progress bar and a running tally of results; the console logs each case.
 
+<p>
+<img src="images/autobahn-running.png" width="320" alt="The example mid-run: 166 of 301 cases, case 6.21.6, 163 OK and 2 non-strict so far">
+<img src="images/autobahn-complete.png" width="320" alt="The finished run: 301 of 301 cases, 296 OK, 2 non-strict, 3 informational, 0 failed, with the cases that weren't OK listed">
+</p>
+
+The progress bar is green while every case is OK and turns yellow after a non-strict result (red after a failure), so its colour shows the worst result so far.
+
 To run the same suite without Solar2D, from the command line, see [Development](../../docs/development.md#autobahn-testsuite).
 
 ## Run It
