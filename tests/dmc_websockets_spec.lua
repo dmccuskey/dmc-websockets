@@ -105,7 +105,7 @@ function test_checkResponse_goodHeaders()
 		'Sec-WebSocket-Protocol: 7',
 		''
 	}
-	assert_true( ws_handshake.checkResponse( response, key ), "should be true" )
+	assert_true( ws_handshake.checkResponse( response, key, '7' ), "should be true" )
 
 	key = 'MSg0ucuFeYQT7Bb1/FjgDg=='
 	response = {
@@ -116,6 +116,49 @@ function test_checkResponse_goodHeaders()
 		'Sec-WebSocket-Protocol: 7',
 		''
 	}
-	assert_true( ws_handshake.checkResponse( response, key ), "should be true" )
+	assert_true( ws_handshake.checkResponse( response, key, { 'chat', '7' } ), "should be true" )
 
+end
+
+
+-- a valid response, with optional extra header lines
+local function goodResponse( ... )
+	local response = {
+		'HTTP/1.1 101 Switching Protocols',
+		'Upgrade: websocket',
+		'Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=',
+	}
+	for _, line in ipairs{ ... } do table.insert( response, line ) end
+	table.insert( response, '' )
+	return response
+end
+
+function test_checkResponse_headerFormats()
+	local key = 'dGhlIHNhbXBsZSBub25jZQ=='
+
+	-- Connection may list several tokens, in any case
+	assert_true( ws_handshake.checkResponse(
+		goodResponse( 'Connection: keep-alive, Upgrade' ), key ), "token list" )
+	assert_true( ws_handshake.checkResponse(
+		goodResponse( 'Connection: UPGRADE' ), key ), "any case" )
+
+	-- whitespace around header values is optional
+	assert_true( ws_handshake.checkResponse(
+		goodResponse( 'Connection:Upgrade' ), key ), "no space" )
+	assert_true( ws_handshake.checkResponse(
+		goodResponse( 'Connection:   Upgrade  ' ), key ), "extra space" )
+end
+
+function test_checkResponse_protocolsAndExtensions()
+	local key = 'dGhlIHNhbXBsZSBub25jZQ=='
+
+	-- server picked a protocol we didn't offer
+	assert_false( ws_handshake.checkResponse(
+		goodResponse( 'Connection: Upgrade', 'Sec-WebSocket-Protocol: 7' ), key ), "not requested" )
+	assert_false( ws_handshake.checkResponse(
+		goodResponse( 'Connection: Upgrade', 'Sec-WebSocket-Protocol: 7' ), key, { 'chat' } ), "not in list" )
+
+	-- we don't offer any extensions, so the server can't use one
+	assert_false( ws_handshake.checkResponse(
+		goodResponse( 'Connection: Upgrade', 'Sec-WebSocket-Extensions: permessage-deflate' ), key ), "extension" )
 end
