@@ -91,7 +91,7 @@ ws_handler = function( event )
 		if LOCAL_DEBUG then
 			print( "Received event: ONMESSAGE, len", #msg.data )
 		end
-		ws:send( msg.data )
+		ws:send( msg.data, { type=msg.type } )
 
 	elseif evt_type == ws.ONCLOSE then
 		if LOCAL_DEBUG then
