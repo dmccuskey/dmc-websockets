@@ -1,64 +1,46 @@
-### Example: dmc-websockets-autobahntestsuite ###
+# Example: Autobahn Testsuite in Solar2D
 
-This example requires the Autobahn Websocket Test Suite. 
+Runs the [Autobahn|Testsuite](https://github.com/crossbario/autobahn-testsuite) conformance cases against dmc-websockets inside a Solar2D app. The screen shows the current case, a progress bar and a running tally of results; the console logs each case.
 
+To run the same suite without Solar2D, from the command line, see [Development](../../docs/development.md#autobahn-testsuite).
 
-#### Setup AutoBahn Test Suit ####
+## Run It
 
-(The main instructions can be found here: http://autobahn.ws/testsuite/installation.html)
+Prerequisites: Docker and the Solar2D Simulator.
 
-1. Install the Autobahn Test Suite
+1. **Start the fuzzing server** from the repository root:
 
-  Two ways to install, via `pip` or sources. Using `pip` will install everything including dependencies.
-  
-  ```
-  pip install autobahntestsuite
-  ```
-  
-  ```
-  git clone git://github.com/tavendo/AutobahnTestSuite.git
-  cd AutobahnTestSuite
-  git checkout v0.7.1
-  cd autobahntestsuite
-  python setup.py install
-  ```
+   ```sh
+   tests/autobahn/server.sh start
+   ```
 
-1. Start Autobahn server
+   The first start takes a minute or two (the image is x86-only and runs under emulation on Apple Silicon). It ends with `fuzzingserver listening on ws://127.0.0.1:9001`.
 
-  ```
-  cd <your install path>/AutobahnTestSuite/autobahntestsuite
-  python -m autobahntestsuite.wstest -m fuzzingserver
-  ```
+2. **Open this folder in the Solar2D Simulator** (File > Open, choose `main.lua`). The suite starts right away; all 301 cases take about 10 minutes (each case uses three short connections: its description, the case itself and its result). The Simulator restarts the run if a file in this folder changes while it runs. When it finishes, the screen shows `Complete` and lists any case that wasn't OK, and the console ends with:
 
+   ```text
+   Complete: 301 cases in 9:10
+     OK             296
+     NON-STRICT     2
+     INFORMATIONAL  3
+   Reports updated for agent dmc_websockets_solar2d
+   ```
 
-#### Setup Corona App ####
+   If the screen says `No fuzzing server`, step 1 isn't running or `app_config.lua` points at another address.
 
-1. Update the app config file in the example
+3. **Read the reports** at `tests/autobahn/reports/solar2d/clients/index.html`, one page per case. Compare them with the headless results using `python3 tests/autobahn/summarize.py tests/autobahn/reports/after tests/autobahn/reports/solar2d`.
 
-  edit `app_config.lua` and modify `Config.deployment` with your IP address and port number of your setup. (Note: 9001 is the default port for the Autobahn test server)
+4. **Stop the server:** `tests/autobahn/server.sh stop`.
 
-  ```
-  Config.deployment = {
-    -- 192.168.0.102, 192.168.3.120
-    server_url = '192.168.0.102', -- or IP
-    server_port = '9001',
-    io_buffering_active = false
-  }
-  ```
+## Settings
 
-1. Run the example
+`app_config.lua`:
 
-  Start the Corona SDK and load the example directory
+| Setting | Default | Description |
+|---|---|---|
+| `host`, `port` | `127.0.0.1`, `9001` | Where the fuzzing server runs. To test from a phone, use the LAN address of the computer running Docker |
+| `agent` | `dmc_websockets_solar2d` | Name the results are filed under in the reports |
+| `cases` | `nil` (all) | Only run these cases, e.g. `{ '1.1.1', '6.4.3', '9.1.3' }` |
+| `case_timeout` | `60` | Seconds before a case that hangs is abandoned |
 
-
-### Results ###
-
-To see the results of the test:
-
-1. Navigate to http://`<your-test-server-ip-address>`:8080/test_browser.html
-
-  click on button "Update Reports (manual)"
-
-1. Navigate to http://`<your-test-server-ip-address>`:8080/cwd/reports/clients/index.html
-
-  All of the tests are shown with output on the right hand side
+The results are explained on the [compliance page](../../docs/compliance.md).

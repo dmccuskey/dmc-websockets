@@ -19,6 +19,8 @@ Version 1.4.0, sections 1 to 10 (301 cases). Sections 12 and 13 test compression
 | 10 Miscellaneous | 1 | 1 | | | |
 | **Total** | **301** | **296** | **2** | **3** | **0** |
 
+The results are the same whether the client runs headless in plain Lua or in the Solar2D Simulator (build 2026.3731): no case differs.
+
 For comparison, version 1.3.1 (2015) had 177 OK and 117 failed, mostly in UTF-8 handling (73 failed), large messages (37 failed in section 9) and messages split across network reads (sections 1, 2 and 5).
 
 ### Not Plain OK
@@ -29,4 +31,5 @@ For comparison, version 1.3.1 (2015) had 177 OK and 117 failed, mostly in UTF-8 
 
 ## Running the Suite
 
-The suite runs headless, without Solar2D, using Docker for the fuzzing server and plain Lua for the client. See [Development](development.md#autobahn-testsuite).
+- Headless, without Solar2D, using Docker for the fuzzing server and plain Lua for the client: see [Development](development.md#autobahn-testsuite).
+- In Solar2D, with the results on screen: see the [Autobahn example](../examples/dmc-websockets-autobahntestsuite/).
