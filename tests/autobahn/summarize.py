@@ -59,14 +59,14 @@ def main():
     before, after = runs
     print_counts("before", before)
     print_counts("after", after)
-    changed = [c for c in sorted(set(before) | set(after), key=case_key)
-               if status(before.get(c, {"behavior": "MISSING", "behaviorClose": "OK"}))
-               != status(after.get(c, {"behavior": "MISSING", "behaviorClose": "OK"}))]
-    print(f"\n{len(changed)} cases changed:")
+    # only compare cases both runs have, so a partial run (CASES=...) diffs cleanly
+    common = sorted(set(before) & set(after), key=case_key)
+    changed = [c for c in common if status(before[c]) != status(after[c])]
+    only = len(set(before) ^ set(after))
+    note = f" ({only} cases not in both runs, skipped)" if only else ""
+    print(f"\n{len(changed)} of {len(common)} cases changed{note}:")
     for c in changed:
-        b = status(before[c]) if c in before else "MISSING"
-        a = status(after[c]) if c in after else "MISSING"
-        print(f"  {c:<10} {b:>13} -> {a}")
+        print(f"  {c:<10} {status(before[c]):>13} -> {status(after[c])}")
 
 
 if __name__ == "__main__":
