@@ -6,6 +6,7 @@ Passes the Autobahn|Testsuite (sections 1-10: 296 OK, 2 non-strict, 3 informatio
 
 ### Fixed
 
+- The echo example failed with `ONERROR`: echo.websocket.org now only answers `wss://`. It also closed before the last echo arrived.
 - Messages split across network reads were misread, which caused random disconnects and protocol errors ([#5](https://github.com/dmccuskey/dmc-websockets/issues/5), [#8](https://github.com/dmccuskey/dmc-websockets/issues/8)).
 - Messages larger than the socket's send buffer (roughly 64-256KB) were cut short (fixed in dmc-sockets).
 - `wss://` connections failed with `attempt to call method 'setoption'`, servers on shared hosts and CDNs refused them (no SNI), and TLS 1.0 was forced ([#6](https://github.com/dmccuskey/dmc-websockets/issues/6); fixed in dmc-sockets). The TLS version is now negotiated.
@@ -20,7 +21,8 @@ Passes the Autobahn|Testsuite (sections 1-10: 296 OK, 2 non-strict, 3 informatio
 - `ssl_params.protocol` defaults to `'any'` (was `'tlsv1'`) and accepts `'tlsv1_1'`, `'tlsv1_2'` and `'tlsv1_3'`.
 - `WebSockets.VERSION` and the user agent now match the library version.
 - The default `throttle` is `OFF` (a check every frame; it was nominally `MEDIUM`), so apps behave as before now that the setting works.
-- The bundled libraries (dmc-sockets, DMC Lua library) are updated.
+- The bundled libraries (dmc-sockets, DMC Lua library, dmc-corona-boot) are updated.
+- Documentation: a Configuration section (`[DMC_WEBSOCKETS]`) and Known Issues in the API reference, an examples overview, and source headers link to this repository instead of the old docs site. The examples' `dmc_corona.cfg` hold only the sections this library uses.
 - Sending large messages is faster: masking the outgoing frame used a bit-library call per byte and now uses lookup tables. Echoing a 16MB message takes 1.0 s instead of 3.9 s headless, and 1.1 s instead of 1.5 s in Solar2D.
 
 ### Added

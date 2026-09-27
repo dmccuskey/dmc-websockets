@@ -16,6 +16,8 @@ local WebSockets = require 'dmc_corona.dmc_websockets'
 | [`ws.readyState`](#readystate) | property | Connection status |
 | [`ws.throttle`](#throttle) | property | How often sockets are checked for data |
 | [`ws:removeSelf()`](#removeself) | method | Destroy the object |
+| [Configuration](#configuration) | file | The `[DMC_WEBSOCKETS]` section of `dmc_corona.cfg` |
+| [Known issues](#known-issues) | | Behavior that differs from what the API suggests |
 
 ## Creating a Connection
 
@@ -157,3 +159,23 @@ Setting `ws.throttle` changes the setting for all connections. Each connection a
 | `ws.TEXT`, `ws.BINARY` | Message types |
 | `WebSockets.VERSION` | Library version, e.g. `'1.4.0'` |
 | `WebSockets.USER_AGENT` | `'dmc_websockets/1.4.0'`; defined for apps to use, not sent in the handshake |
+
+## Configuration
+
+dmc-websockets has no settings in effect. Its `dmc_corona.cfg` section, `[DMC_WEBSOCKETS]`, can be left out or left empty:
+
+| Option | Default | Description |
+|---|---|---|
+| `DEBUG_ACTIVE` | `false` | Read, but has no effect yet |
+
+Connection settings go in the [options](#options) of each connection instead. How often sockets are checked can also be set for the whole app in dmc-sockets' `[DMC_SOCKETS]` section ([dmc-sockets Configuration](https://github.com/dmccuskey/dmc-sockets/blob/master/docs/api.md#configuration)), but each connection's `throttle` option overrides it when it connects. The file's format, and the `[DMC_CORONA]` section every DMC library uses, are described in [dmc-corona-boot's Configuration](https://github.com/dmccuskey/dmc-corona-boot/blob/master/docs/configuration.md).
+
+## Known Issues
+
+- **No reconnecting and no keep-alive:** `auto_reconnect` is accepted but does nothing, and no pings are sent, so a connection that silently dies isn't noticed. Create a new object to reconnect.
+- **Failed connections close instead of erroring:** a server that can't be reached, or a failed TLS handshake, gives `ONCLOSE` with no `code`, not `ONERROR`.
+- **Certificates aren't checked** by default for `wss://` (`verify='none'`, see [TLS Settings](#tls-settings)).
+- **`throttle` is shared:** it applies to every connection, and each new connection resets it to its own `throttle` option (`OFF` when not given).
+- The `query` option is ignored, no `Origin` header is sent, and extensions (such as compression) aren't supported.
+
+Fixes are listed under [Possible Future Changes](development.md#possible-future-changes).
