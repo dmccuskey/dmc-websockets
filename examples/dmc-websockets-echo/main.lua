@@ -64,6 +64,9 @@ local function webSocketsEvent_handler( event )
 		print( "Received event: ONMESSAGE" )
 		print( "echoed message: '" .. tostring( msg.data ) .. "'\n\n" )
 
+		-- the server greets each connection before echoing
+		if msg.data:find( '^Request served by' ) then return end
+
 		if count == num_msgs then
 			ws:close()
 		else
@@ -76,13 +79,13 @@ local function webSocketsEvent_handler( event )
 
 	elseif evt_type == ws.ONERROR then
 		print( "Received event: ONERROR" )
-		-- Utils.print( event )
+		print( 'code:reason', event.code, event.reason )
 
 	end
 end
 
 
 ws = WebSockets{
-	uri='ws://echo.websocket.org'
+	uri='wss://echo.websocket.org'
 }
 ws:addEventListener( ws.EVENT, webSocketsEvent_handler )
