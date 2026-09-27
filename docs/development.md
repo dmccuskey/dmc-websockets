@@ -17,7 +17,7 @@ tests/run_unit.sh
 Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake. Expected output ends with:
 
 ```text
-  16 passed, 0 failed, 0 error(s), 0 skipped.
+  17 passed, 0 failed, 0 error(s), 0 skipped.
 ```
 
 ### Autobahn Testsuite

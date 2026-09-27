@@ -36,7 +36,7 @@ The [Autobahn example](examples/dmc-websockets-autobahntestsuite/) runs the whol
 
 ## Quick Start
 
-This gets a Solar2D app sending and receiving messages through a public echo server in about 10 minutes, in the Solar2D Simulator on macOS or Windows.
+The following code will get you up and running in about 10 minutes in the Solar2D Simulator on macOS or Windows. It makes an app that connects to a public echo server, sends a message and prints the reply.
 
 Prerequisites: the [Solar2D](https://solar2d.com/) Simulator and a copy of this repository (`git clone https://github.com/dmccuskey/dmc-websockets.git`, or download the ZIP from GitHub).
 
@@ -97,9 +97,14 @@ Prerequisites: the [Solar2D](https://solar2d.com/) Simulator and a copy of this 
 - [Installation](docs/installation.md): project layout, plugins, Android
 - [API reference](docs/api.md): options, methods, events and constants
 - [Protocol compliance](docs/compliance.md): Autobahn|Testsuite results
+- [Examples](examples/README.md): an echo client, the Autobahn test client, and a Pusher client
 - [Development](docs/development.md): tests, rebuilding the bundled libraries, ideas
 
 Everything else is on the [documentation home](docs/README.md).
+
+## Acknowledgements
+
+The framing and handshake code was adapted from [lua-resty-websocket](https://github.com/openresty/lua-resty-websocket), [lua-websockets](https://github.com/lipp/lua-websockets) and [Lumen](https://github.com/xopxe/Lumen). Thanks to their authors.
 
 ## License
 
