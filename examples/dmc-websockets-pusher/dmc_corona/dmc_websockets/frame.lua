@@ -60,6 +60,7 @@ local VERSION = "1.2.0"
 local bit = require 'lib.dmc_lua.bit'
 local ByteArray = require 'lib.dmc_lua.lua_bytearray'
 local Error = require 'dmc_websockets.exception'
+local Patch = require 'lib.dmc_lua.lua_patch'
 local UTF8 = require 'dmc_websockets.utf8'
 local Utils = require 'lib.dmc_lua.lua_utils'
 
@@ -68,6 +69,8 @@ local Utils = require 'lib.dmc_lua.lua_utils'
 --====================================================================--
 --== Setup, Constants
 
+
+Patch.addPatch( 'string-format' ) -- the close-code error messages use it
 
 local ProtocolError = Error.ProtocolError
 
@@ -510,6 +513,45 @@ local function receiveWSFrame( bytearray )
 end
 
 
+-- bytes the frame at the start of str takes in all (header, mask and
+-- payload), so a caller can wait until that much has arrived; nil
+-- when str doesn't hold the whole header yet. A frame that will fail
+-- anyway (masked, or too long) gives its header size, so receiveFrame()
+-- reports the error without waiting for the payload
+--
+local function frameSize( str )
+	local len = #str
+	if len < 2 then return nil end
+
+	local b2 = sbyte( str, 2 )
+	local payload_len = band( b2, bit_6_0 )
+	local size = 2
+
+	if payload_len == MED_FRAME_TOKEN then
+		size = 4
+		if len < size then return nil end
+		local h1, h2 = sbyte( str, 3, 4 )
+		payload_len = h1 * 256 + h2
+
+	elseif payload_len == LRG_FRAME_TOKEN then
+		size = 10
+		if len < size then return nil end
+		local h1, h2, h3, h4, h5 = sbyte( str, 3, 7 )
+		if h1 ~= 0 or h2 ~= 0 or h3 ~= 0 or h4 ~= 0 or h5 >= 0x80 then
+			return size
+		end
+		payload_len = 0
+		for i = 7, 10 do
+			payload_len = payload_len * 256 + sbyte( str, i )
+		end
+	end
+
+	if band( b2, bit_7 ) ~= 0 then return size end
+
+	return size + payload_len
+end
+
+
 -- @params params table structure
 -- data: data to send
 -- fin: boolean, end of data packet
@@ -693,6 +735,7 @@ return {
 	},
 
 	receiveFrame = receiveWSFrame,
+	frameSize = frameSize,
 	buildFrames = buildWSFrames,
 	encodeCloseFrameData = encodeCloseFrameData,
 	decodeCloseFrameData = decodeCloseFrameData
