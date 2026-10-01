@@ -14,10 +14,10 @@ Setup: Lua 5.1 with `luasocket`, `luafilesystem`, `dkjson` and `luabitop` (add `
 tests/run_unit.sh
 ```
 
-Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake. Expected output ends with:
+Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake, and the `WebSocket` class itself (receiving, pongs, keep-alive, failed connections, options) against stand-ins for dmc-sockets and Solar2D's `timer`. Expected output ends with:
 
 ```text
-  17 passed, 0 failed, 0 error(s), 0 skipped.
+  36 passed, 0 failed, 0 error(s), 0 skipped.
 ```
 
 ### Autobahn Testsuite
@@ -59,13 +59,9 @@ Changes go on a short-lived branch (`fix/...`, `feat/...`, `docs/...`) and reach
 
 These are ideas, not plans. Each needs discussion and a concrete use case before it is worked on; decided work goes in [GitHub issues](https://github.com/dmccuskey/dmc-websockets/issues).
 
-- **Keep-alive pings and reconnecting** ([#3](https://github.com/dmccuskey/dmc-websockets/issues/3)): send pings on a timer, detect a dead connection, and optionally reconnect (`auto_reconnect` is accepted today but does nothing).
-- **Origin header** ([#1](https://github.com/dmccuskey/dmc-websockets/issues/1)): an option to send `Origin` with the handshake, for servers that check it.
-- **Pong events:** tell the app when a pong arrives, e.g. to measure latency. It must be dispatched directly, since a pong can arrive in the middle of a fragmented message.
-- **Report failed connections as errors:** today a server that can't be reached, or a failed TLS handshake, produces `ONCLOSE` with no code rather than `ONERROR`.
-- **Wait for the server's close after a protocol error:** RFC 6455 section 7.1.7 prefers that the client stop reading and let the server close the TCP connection; the client currently closes it itself.
-- **Faster receive buffer:** each read copies all unread bytes, which is quadratic in the message size. A 16MB echo takes about 3.5 seconds.
-- **Strict mid-frame UTF-8 checks:** validate text as each piece of a frame arrives, which would make Autobahn cases 6.4.3 and 6.4.4 strict.
+- **Reconnecting** ([#17](https://github.com/dmccuskey/dmc-websockets/issues/17)): make `auto_reconnect` work, building on keep-alive (which detects a dead connection): when to retry, how often, and which state carries over to the new connection.
+- **Wait for the server's close after a protocol error** ([#19](https://github.com/dmccuskey/dmc-websockets/issues/19)): RFC 6455 section 7.1.7 prefers that the client stop reading and let the server close the TCP connection; the client currently closes it itself.
+- **Strict mid-frame UTF-8 checks** ([#20](https://github.com/dmccuskey/dmc-websockets/issues/20)): validate text as each piece of a frame arrives, which would make Autobahn cases 6.4.3 and 6.4.4 strict.
 - **Faster bit operations outside Solar2D:** the bit-operations shim (lua-bit-shim) tries `plugin.bit`, then a pure-Lua version; trying LuaBitOp (`bit`) in between would make plain-Lua use, including the test suites, faster.
-- **Certificate verification by default** for `wss://`, with a way to supply CA certificates on each platform.
-- **Send `USER_AGENT`** with the handshake.
+- **Certificate verification by default** ([#18](https://github.com/dmccuskey/dmc-websockets/issues/18)) for `wss://`, with a way to supply CA certificates on each platform.
+- **Extensions** ([#21](https://github.com/dmccuskey/dmc-websockets/issues/21)), such as permessage-deflate compression (Autobahn sections 12 and 13).

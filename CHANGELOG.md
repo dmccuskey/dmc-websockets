@@ -12,6 +12,12 @@ Passes the Autobahn|Testsuite (sections 1-10: 296 OK, 2 non-strict, 3 informatio
 - `wss://` connections failed with `attempt to call method 'setoption'`, servers on shared hosts and CDNs refused them (no SNI), and TLS 1.0 was forced ([#6](https://github.com/dmccuskey/dmc-websockets/issues/6); fixed in dmc-sockets). The TLS version is now negotiated.
 - Close frames sent the reason as a number (`"1002"`) instead of text.
 - Handshake: accept `Connection` headers with several tokens and headers without a space after the colon.
+- A server that can't be reached, or a failed TLS handshake, now gives `ONERROR` (code 3000, with the socket's message in `event.emsg`) instead of `ONCLOSE` with no code.
+- A connection created without the `throttle` option no longer resets the shared setting to `OFF`.
+- The `query` option was ignored; it's now added to the `uri`'s query string.
+- A handshake response that arrived in more than one network read was never finished.
+- Close-code error messages needed a string patch that only another module happened to load.
+- The global `_extend` is no longer created (the module uses lua_utils instead of its own copy).
 - The `throttle` setting had no effect (fixed in dmc-sockets). It now spaces out socket checks; see the change to its default below.
 
 ### Changed
@@ -23,10 +29,15 @@ Passes the Autobahn|Testsuite (sections 1-10: 296 OK, 2 non-strict, 3 informatio
 - The default `throttle` is `OFF` (a check every frame; it was nominally `MEDIUM`), so apps behave as before now that the setting works.
 - The bundled libraries (dmc-sockets, DMC Lua library, dmc-corona-boot) are updated.
 - Documentation: a Configuration section (`[DMC_WEBSOCKETS]`) and Known Issues in the API reference, an examples overview, and source headers link to this repository instead of the old docs site. The examples' `dmc_corona.cfg` hold only the sections this library uses.
+- Receiving large messages is faster: incoming data is kept as a list of pieces and joined once the frame is complete, instead of being copied again with each network read. A 16MB message arriving in 64KB reads takes 0.01 s instead of 0.6 s to buffer (headless). The Autobahn 16MB echo, whose data arrives in fewer, larger reads, is unchanged at about 1 s.
+- The handshake sends a `User-Agent` header (`WebSockets.USER_AGENT`).
 - Sending large messages is faster: masking the outgoing frame used a bit-library call per byte and now uses lookup tables. Echoing a 16MB message takes 1.0 s instead of 3.9 s headless, and 1.1 s instead of 1.5 s in Solar2D.
 
 ### Added
 
+- `ONPONG` event and `ping()` (pong events from [#2](https://github.com/dmccuskey/dmc-websockets/pull/2), thanks to @chkuendig). Pongs are reported as they arrive, even in the middle of a fragmented message.
+- Keep-alive: the `keepalive` and `keepalive_timeout` options ping on a timer and fail the connection (`ONERROR`, code 3003) when no pong comes back; `ws.latency` gives the last round trip ([#3](https://github.com/dmccuskey/dmc-websockets/issues/3)).
+- `origin` option, sent as the handshake's `Origin` header ([#1](https://github.com/dmccuskey/dmc-websockets/issues/1)).
 - Headless test suites: unit tests (`tests/run_unit.sh`) and an Autobahn|Testsuite harness (`tests/autobahn/`), both in plain Lua without Solar2D.
 - Documentation: Quick Start, installation, API reference, compliance results, development guide.
 
