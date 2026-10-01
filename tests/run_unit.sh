@@ -23,5 +23,6 @@ system = system or { pathForFile=function( f ) return f end, ResourceDirectory='
 local lunatest = require 'lunatest'
 lunatest.suite( 'dmc_websockets_spec' )
 lunatest.suite( 'dmc_websockets_frame_spec' )
+lunatest.suite( 'dmc_websockets_class_spec' )
 lunatest.run()
 " 2>&1 | grep -v '^Lua Patch::'

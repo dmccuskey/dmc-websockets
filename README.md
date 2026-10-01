@@ -23,6 +23,7 @@ end )
 - `ws://` and `wss://` (TLS with SNI, so it works with servers on shared hosts and CDNs)
 - Text and binary messages, including large ones (tested up to 16MB)
 - Fragmented messages, pings and the closing handshake handled for you
+- Optional keep-alive pings that detect a dead connection and measure latency
 - UTF-8 validation of text messages, as the RFC requires
 - Subprotocol negotiation
 - Event-based API that fits the Solar2D event loop; no threads or blocking calls

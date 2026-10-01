@@ -7,7 +7,6 @@
 
 module(..., package.seeall)
 
-package.path = './dmc_corona/?.lua;./dmc_corona/lib/dmc_lua/?.lua;' .. package.path
 
 
 

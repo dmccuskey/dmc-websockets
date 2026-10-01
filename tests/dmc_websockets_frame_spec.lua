@@ -142,6 +142,27 @@ end
 
 
 --====================================================================--
+--== Test: frameSize
+
+
+function test_frameSize()
+	local fs = ws_frame.frameSize
+	assert_nil( fs( "" ) )
+	assert_nil( fs( "\129" ) ) -- header incomplete
+	assert_equal( 2 + 5, fs( "\129\5" ) ) -- small, payload not here yet
+	assert_equal( 2 + 5, fs( "\129\5hello" ) )
+	assert_nil( fs( "\130\126\1" ) ) -- 16-bit length incomplete
+	assert_equal( 4 + 1000, fs( "\130\126\3\232" ) )
+	assert_nil( fs( "\130\127\0\0\0\0\0" ) ) -- 64-bit length incomplete
+	assert_equal( 10 + 0x01000000, fs( "\130\127\0\0\0\0\1\0\0\0" ) )
+	-- frames that fail anyway: header size only
+	assert_equal( 10, fs( "\130\127\0\0\0\1\0\0\0\0" ) ) -- too long
+	assert_equal( 4, fs( "\130\254\3\232" ) ) -- masked
+end
+
+
+
+--====================================================================--
 --== Test: UTF-8
 
 
