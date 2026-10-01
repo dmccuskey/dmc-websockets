@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.4.0 (unreleased)
+## 1.4.1 (unreleased)
+
+### Fixed
+
+- The global `_extend` is no longer created: 1.4.0 removed it from dmc-websockets' own module, but the bundled dmc-sockets still set it. Rebuilt with dmc-sockets without it.
+
+## 1.4.0 (2026-10-01)
 
 Passes the Autobahn|Testsuite (sections 1-10: 296 OK, 2 non-strict, 3 informational, 0 failed; 1.3.1 had 117 failures). See [Protocol compliance](docs/compliance.md).
 
