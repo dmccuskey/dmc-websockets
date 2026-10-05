@@ -15,6 +15,8 @@ module_config = {
 			"dmc_websockets/exception.lua",
 			"dmc_websockets/frame.lua",
 			"dmc_websockets/handshake.lua",
+			"dmc_websockets/html5.lua",
+			"dmc_websockets/html5_js.js",
 			"dmc_websockets/message.lua",
 			"dmc_websockets/utf8.lua",
 			"lib/sha1.lua"

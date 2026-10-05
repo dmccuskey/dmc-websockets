@@ -20,6 +20,14 @@ Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close code
   37 passed, 0 failed, 0 error(s), 0 skipped.
 ```
 
+### HTML5 Bridge
+
+```sh
+node --test tests/html5_bridge.test.js
+```
+
+Runs the JavaScript bridge (`dmc_corona/dmc_websockets/html5_js.js`) in Node 18 or later against a stand-in for the browser's `WebSocket`: event order, binary data, closing, and connections kept apart. Neither suite runs a browser; check changes to the HTML5 transport in a real HTML5 build too.
+
 ### Autobahn Testsuite
 
 ```sh
