@@ -14,10 +14,10 @@ Setup: Lua 5.1 with `luasocket`, `luafilesystem`, `dkjson` and `luabitop` (add `
 tests/run_unit.sh
 ```
 
-Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake, and the `WebSocket` class itself (receiving, pongs, keep-alive, failed connections, options) against stand-ins for dmc-sockets and Solar2D's `timer`. Expected output ends with:
+Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake, and the `WebSocket` class itself (receiving, pongs, keep-alive, failed connections, options) against stand-ins for dmc-sockets and Solar2D's `timer`. The class is also tested as in an HTML5 build, against a stand-in for the JavaScript bridge. Expected output ends with:
 
 ```text
-  37 passed, 0 failed, 0 error(s), 0 skipped.
+  49 passed, 0 failed, 0 error(s), 0 skipped.
 ```
 
 ### HTML5 Bridge
