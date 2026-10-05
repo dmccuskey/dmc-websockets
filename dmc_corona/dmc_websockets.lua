@@ -358,6 +358,11 @@ function WebSocket:send( data, params )
 	assert( type(data)=='string', "expected string for send()")
 	params = params or {}
 	params.type = params.type or WebSocket.TEXT
+	if params.type ~= WebSocket.BINARY then
+		-- RFC 6455 5.6: a server fails the connection on anything else
+		assert( ws_utf8.isValid( data ),
+			"WebSocket: text must be valid UTF-8, send other data as BINARY" )
+	end
 	--==--
 
 	if params.type == WebSocket.BINARY then

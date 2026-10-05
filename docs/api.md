@@ -128,7 +128,7 @@ ws:send( 'hello' )                          -- text
 ws:send( png_bytes, { type=ws.BINARY } )    -- binary
 ```
 
-`data` must be a string. Text messages should be valid UTF-8. Messages are queued until they can be written, so `send()` doesn't block, and large messages are sent in pieces over several frames of the app.
+`data` must be a string. Text must be valid UTF-8, as RFC 6455 requires (`send()` raises an error otherwise); send other data as `ws.BINARY`. Messages are queued until they can be written, so `send()` doesn't block, and large messages are sent in pieces over several frames of the app.
 
 ### close()
 

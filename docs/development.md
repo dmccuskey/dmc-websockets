@@ -17,7 +17,7 @@ tests/run_unit.sh
 Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake, and the `WebSocket` class itself (receiving, pongs, keep-alive, failed connections, options) against stand-ins for dmc-sockets and Solar2D's `timer`. Expected output ends with:
 
 ```text
-  36 passed, 0 failed, 0 error(s), 0 skipped.
+  37 passed, 0 failed, 0 error(s), 0 skipped.
 ```
 
 ### Autobahn Testsuite

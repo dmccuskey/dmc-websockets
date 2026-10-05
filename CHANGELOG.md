@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- `send()` raises an error for text that isn't valid UTF-8. RFC 6455 requires text to be UTF-8, and a server fails the connection (1007) when it isn't; send other data as `ws.BINARY`.
+
 ## 1.4.1 (unreleased)
 
 ### Fixed
