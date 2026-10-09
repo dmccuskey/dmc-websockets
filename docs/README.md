@@ -10,7 +10,7 @@ New here? The [Quick Start](../README.md#quick-start) gets a Solar2D app talking
 ## Use
 
 - [API reference](api.md): connection options, TLS settings, events, close codes, methods and constants
-- [Examples](../examples/README.md): an echo client, the Autobahn test client, and a Pusher client over `wss://`
+- [Examples](../examples/README.md): an echo client, an echo demo with a screen which also runs in the browser, the Autobahn test client, and a Pusher client over `wss://`
 
 ## Internals
 

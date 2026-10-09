@@ -99,7 +99,7 @@ Prerequisites: the [Solar2D](https://solar2d.com/) Simulator and a copy of this 
 - [Installation](docs/installation.md): project layout, plugins, Android
 - [API reference](docs/api.md): options, methods, events and constants
 - [Protocol compliance](docs/compliance.md): Autobahn|Testsuite results
-- [Examples](examples/README.md): an echo client, the Autobahn test client, and a Pusher client
+- [Examples](examples/README.md): an echo client, an echo demo with a screen which also runs in the browser, the Autobahn test client, and a Pusher client
 - [Development](docs/development.md): tests, rebuilding the bundled libraries, ideas
 
 Everything else is on the [documentation home](docs/README.md).
