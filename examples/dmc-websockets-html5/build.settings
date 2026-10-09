@@ -1,0 +1,20 @@
+settings =
+{
+	-- keep the README and its screenshots out of the built app
+	excludeFiles =
+	{
+		all = { "README.md", "images/*" }
+	},
+	plugins =
+	{
+		["plugin.bit"] = { publisherId = "com.coronalabs" },
+		["plugin.openssl"] = { publisherId = "com.coronalabs" }
+	},
+	android =
+	{
+		usesPermissions =
+		{
+			"android.permission.INTERNET"
+		}
+	}
+}

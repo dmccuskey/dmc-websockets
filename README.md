@@ -27,7 +27,7 @@ end )
 - UTF-8 validation of text messages, as the RFC requires
 - Subprotocol negotiation
 - Event-based API that fits the Solar2D event loop; no threads or blocking calls
-- HTML5 builds too, through the browser's own WebSocket ([what differs](docs/api.md#html5-builds))
+- HTML5 builds too, through the browser's own WebSocket ([try the demo in your browser](https://dmccuskey.github.io/dmc-websockets/), [what differs](docs/api.md#html5-builds))
 - Passes the [Autobahn|Testsuite](docs/compliance.md): 296 of 301 cases OK, none failed
 - Pure Lua, MIT licensed
 
@@ -107,6 +107,8 @@ Everything else is on the [documentation home](docs/README.md).
 ## Acknowledgements
 
 The framing and handshake code was adapted from [lua-resty-websocket](https://github.com/openresty/lua-resty-websocket), [lua-websockets](https://github.com/lipp/lua-websockets) and [Lumen](https://github.com/xopxe/Lumen). Thanks to their authors.
+
+HTML5 support and pong handling contributed by Christian Kündig ([@chkuendig](https://github.com/chkuendig)).
 
 ## License
 

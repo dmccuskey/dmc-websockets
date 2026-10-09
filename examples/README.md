@@ -2,6 +2,8 @@
 
 Each folder is a complete Solar2D project with its own copy of the library: open its `main.lua` in the Solar2D Simulator. The echo and Pusher examples draw nothing; they print to the Simulator's console.
 
+One of them also runs in your browser: [try the echo demo](https://dmccuskey.github.io/dmc-websockets/).
+
 ## Autobahn Testsuite
 
 <img src="dmc-websockets-autobahntestsuite/images/autobahn-running.png" width="240" alt="The example mid-run: 166 of 301 cases, case 6.21.6, 163 OK and 2 non-strict so far">
@@ -32,6 +34,12 @@ echoed message: 'Current app time: 3189.219'
 Received event: ONCLOSE
 code:reason	1000	Purpose for connection has been fulfilled
 ```
+
+## Echo Demo for the Browser
+
+<img src="dmc-websockets-html5/images/demo-open.png" width="240" alt="The demo connected: the server's greeting, then three messages sent and echoed back">
+
+[dmc-websockets-html5](dmc-websockets-html5/): the echo example with a screen. A button sends a message to `wss://echo.websocket.org`, a list shows what was sent and what came back, and a second button closes the connection or opens a new one. The same code runs in the Simulator and, as an HTML5 build, in the browser: [try it](https://dmccuskey.github.io/dmc-websockets/). Its [README](dmc-websockets-html5/README.md) has the build steps.
 
 ## Pusher
 
