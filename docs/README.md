@@ -32,7 +32,7 @@ LICENSE
 docs/                       this documentation
 dmc_corona/                 what apps copy
 ├── dmc_websockets.lua      the WebSocket client (source)
-├── dmc_websockets/         frames, handshake, messages, UTF-8, errors, HTML5 transport and its JS bridge (source)
+├── dmc_websockets/         the two transports (native, HTML5 and its JS bridge), frames, handshake, messages, UTF-8, errors (source)
 ├── dmc_sockets*            from dmc-sockets (generated copy)
 └── lib/                    sha1.lua (source) and dmc_lua/ (generated copy)
 dmc_corona_boot.lua         loader, from dmc-corona-boot (generated copy)

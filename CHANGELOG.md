@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 1.6.0 (2026-10-09)
+
+### Changed
+
+- The `WebSocket` class now works through a transport: `dmc_websockets/native.lua` (new: the TCP socket, the handshake and the frames) on devices and in the Simulator, `dmc_websockets/html5.lua` in a browser. Both have the same members and work in whole messages, so the class has one code path for every platform. No change to the API or the events. If you copy files by hand, `native.lua` is new.
+- Messages sent before the connection is open wait in the queue until it is, on every platform (before, only in HTML5 builds).
+
+### Fixed
+
+- `close()` while still connecting closes the connection and dispatches `ONCLOSE` (before, outside HTML5 builds, it did nothing).
+- A socket closed with `close()` or replaced by `connect()` can no longer deliver late events to the connection.
 
 ### Added
 
