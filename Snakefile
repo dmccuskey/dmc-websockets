@@ -39,6 +39,10 @@ module_config = {
 				"requires": []
 			},
 			{
+				"exp_dir": "dmc-websockets-html5",
+				"requires": []
+			},
+			{
 				"exp_dir": "dmc-websockets-pusher",
 				"requires": []
 			}

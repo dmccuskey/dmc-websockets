@@ -1,10 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- An example with a screen, [dmc-websockets-html5](examples/dmc-websockets-html5/): an echo app which runs in the Simulator, on a device and in the browser. Its HTML5 build is [online](https://dmccuskey.github.io/dmc-websockets/).
+
 ## 1.5.0 (2026-10-09)
 
 ### Added
 
-- HTML5 builds: in the browser the library uses the browser's own WebSocket, through a small JavaScript bridge (`dmc_corona/dmc_websockets/html5_js.js`), with the same API and events. Browsers don't let scripts send pings or set handshake headers, so `ping()`, `ONPONG`, `keepalive`, `origin` and `ssl_params` aren't available there. See [HTML5 Builds](docs/api.md#html5-builds).
+- HTML5 builds: in the browser the library uses the browser's own WebSocket, through a small JavaScript bridge (`dmc_corona/dmc_websockets/html5_js.js`), with the same API and events. Browsers don't let scripts send pings or set handshake headers, so `ping()`, `ONPONG`, `keepalive`, `origin` and `ssl_params` aren't available there. See [HTML5 Builds](docs/api.md#html5-builds). ([#22](https://github.com/dmccuskey/dmc-websockets/pull/22), thanks to @chkuendig)
 
 ### Changed
 

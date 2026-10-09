@@ -210,6 +210,8 @@ The browser keeps some things to itself:
 
 Failures look the same as elsewhere, but with less detail: browsers don't say why a connection failed, so an unreachable server, a refused handshake, a TLS problem and a dropped connection all give `ONERROR` code 3000, with a generic `event.emsg`. A close from the server gives `ONCLOSE` with its code and reason. `close()` while still connecting gives `ONCLOSE` right away. Pages served over `https://` can only open `wss://` connections.
 
+An HTML5 app only runs while its page has the focus: Solar2D suspends it when the browser window loses focus, and a browser stops drawing a tab it can't see. Nothing is delivered while it is suspended, and timers don't run. The browser keeps the connection open and answers the server's pings; the events which arrived meanwhile are delivered, in order, once the page has the focus again.
+
 Binary messages cross the bridge as one character per byte, which JSON carries as UTF-8: a byte from 0x80 up takes two bytes and a control byte six, so a large binary message costs more than its size in transit. Text crosses as it is.
 
 ## Configuration
