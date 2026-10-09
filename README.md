@@ -27,6 +27,7 @@ end )
 - UTF-8 validation of text messages, as the RFC requires
 - Subprotocol negotiation
 - Event-based API that fits the Solar2D event loop; no threads or blocking calls
+- HTML5 builds too, through the browser's own WebSocket ([what differs](docs/api.md#html5-builds))
 - Passes the [Autobahn|Testsuite](docs/compliance.md): 296 of 301 cases OK, none failed
 - Pure Lua, MIT licensed
 

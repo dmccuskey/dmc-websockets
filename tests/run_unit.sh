@@ -24,5 +24,6 @@ local lunatest = require 'lunatest'
 lunatest.suite( 'dmc_websockets_spec' )
 lunatest.suite( 'dmc_websockets_frame_spec' )
 lunatest.suite( 'dmc_websockets_class_spec' )
+lunatest.suite( 'dmc_websockets_html5_spec' )
 lunatest.run()
 " 2>&1 | grep -v '^Lua Patch::'

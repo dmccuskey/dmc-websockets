@@ -73,6 +73,10 @@ settings = {
 }
 ```
 
+## HTML5
+
+HTML5 builds need nothing extra: neither plugin is used there, and `dmc_corona/dmc_websockets/html5_js.js` is the browser side. Keep `dmc_corona/` at the root level of the project folder for HTML5 builds. Solar2D finds a JavaScript module by its full `require` name, and the bridge is loaded as `dmc_corona.dmc_websockets.html5_js`, so it can't follow a `LUA_PATH` to a subfolder. Other builds include the `.js` file but never load it; leave it out of them with `excludeFiles` if you like. What works differently in a browser is described in [HTML5 Builds](api.md#html5-builds).
+
 ## Updating
 
 Copy `dmc_corona/` and `dmc_corona_boot.lua` again from the newer version, replacing the old ones. Keep your own `dmc_corona.cfg` if you have changed it. The [changelog](../CHANGELOG.md) says what changed between versions.

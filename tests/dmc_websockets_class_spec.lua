@@ -319,6 +319,14 @@ function test_ping()
 	assert_error( function() ws:ping( string.rep( 'x', 126 ) ) end )
 end
 
+function test_textMustBeUtf8()
+	local ws, sock = newSocket()
+	open( sock )
+	assert_error( function() ws:send( string.char( 255 ) ) end )
+	ws:send( 'héllo' )
+	ws:send( string.char( 255 ), { type=ws.BINARY } )
+end
+
 
 --== Failed connections
 

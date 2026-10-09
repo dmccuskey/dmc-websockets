@@ -14,11 +14,19 @@ Setup: Lua 5.1 with `luasocket`, `luafilesystem`, `dkjson` and `luabitop` (add `
 tests/run_unit.sh
 ```
 
-Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake, and the `WebSocket` class itself (receiving, pongs, keep-alive, failed connections, options) against stand-ins for dmc-sockets and Solar2D's `timer`. Expected output ends with:
+Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake, and the `WebSocket` class itself (receiving, pongs, keep-alive, failed connections, options) against stand-ins for dmc-sockets and Solar2D's `timer`. The class is also tested as in an HTML5 build, against a stand-in for the JavaScript bridge. Expected output ends with:
 
 ```text
-  36 passed, 0 failed, 0 error(s), 0 skipped.
+  49 passed, 0 failed, 0 error(s), 0 skipped.
 ```
+
+### HTML5 Bridge
+
+```sh
+node --test tests/html5_bridge.test.js
+```
+
+Runs the JavaScript bridge (`dmc_corona/dmc_websockets/html5_js.js`) in Node 18 or later against a stand-in for the browser's `WebSocket`: event order, binary data, closing, and connections kept apart. Neither suite runs a browser; check changes to the HTML5 transport in a real HTML5 build too.
 
 ### Autobahn Testsuite
 

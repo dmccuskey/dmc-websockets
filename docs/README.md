@@ -32,7 +32,7 @@ LICENSE
 docs/                       this documentation
 dmc_corona/                 what apps copy
 ├── dmc_websockets.lua      the WebSocket client (source)
-├── dmc_websockets/         frames, handshake, messages, UTF-8, errors (source)
+├── dmc_websockets/         frames, handshake, messages, UTF-8, errors, HTML5 transport and its JS bridge (source)
 ├── dmc_sockets*            from dmc-sockets (generated copy)
 └── lib/                    sha1.lua (source) and dmc_lua/ (generated copy)
 dmc_corona_boot.lua         loader, from dmc-corona-boot (generated copy)
@@ -42,6 +42,7 @@ examples/                   sample apps, each with its own generated dmc_corona/
 tests/
 ├── run_unit.sh             unit tests in plain Lua
 ├── *_spec.lua              unit test specs (lunatest)
+├── html5_bridge.test.js    JS bridge tests (node --test)
 └── autobahn/               Autobahn|Testsuite harness
     └── reports/            test reports (gitignored, regenerated)
 Snakefile                   build rules for the generated copies
