@@ -112,4 +112,4 @@ HTML5 support and pong handling contributed by Christian Kündig ([@chkuendig](h
 
 ## License
 
-MIT, see [LICENSE](LICENSE). The bundled DMC libraries in `dmc_corona/` are MIT licensed too. `dmc_corona/lib/sha1.lua` is Jeffrey Friedl's pure-Lua SHA-1 (version 1, 2009); its header states his copyright but no license.
+MIT, see [LICENSE](LICENSE). The bundled DMC libraries in `dmc_corona/` are MIT licensed too. So is `dmc_corona/lib/sha1.lua`, the SHA-1 the handshake uses.
