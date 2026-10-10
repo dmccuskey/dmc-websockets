@@ -5,6 +5,7 @@
 ### Changed
 
 - The `WebSocket` class now works through a transport: `dmc_websockets/native.lua` (new: the TCP socket, the handshake and the frames) on devices and in the Simulator, `dmc_websockets/html5.lua` in a browser. Both have the same members and work in whole messages, so the class has one code path for every platform. No change to the API or the events. If you copy files by hand, `native.lua` is new.
+- `dmc_corona/lib/sha1.lua` is a new SHA-1, written from the standard and MIT licensed like the rest of the library; the one before stated a copyright but no license. It has `sha1()` and `sha1_binary()` as before; `hmac_sha1()` and `hmac_sha1_binary()`, which the library never used, are gone. A handshake hash is also several times faster.
 - Messages sent before the connection is open wait in the queue until it is, on every platform (before, only in HTML5 builds).
 
 ### Fixed

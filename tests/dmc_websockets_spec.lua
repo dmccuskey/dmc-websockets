@@ -161,3 +161,30 @@ function test_checkResponse_protocolsAndExtensions()
 	assert_false( ws_handshake.checkResponse(
 		goodResponse( 'Connection: Upgrade', 'Sec-WebSocket-Extensions: permessage-deflate' ), key ), "extension" )
 end
+
+
+--== SHA-1, dmc_corona/lib/sha1.lua
+
+function test_sha1()
+	local SHA1 = require 'lib.sha1'
+
+	-- FIPS 180 examples, and lengths around the 64-byte block
+	assert_equal( 'da39a3ee5e6b4b0d3255bfef95601890afd80709', SHA1.sha1( '' ) )
+	assert_equal( 'a9993e364706816aba3e25717850c26c9cd0d89d', SHA1.sha1( 'abc' ) )
+	assert_equal( '84983e441c3bd26ebaae4aa1f95129e5e54670f1',
+		SHA1.sha1( 'abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq' ) )
+	assert_equal( '2fd4e1c67a2d28fced849ee1bb76e7391b93eb12',
+		SHA1.sha1( 'The quick brown fox jumps over the lazy dog' ) )
+	assert_equal( 'c1c8bbdc22796e28c0e15163d20899b65621d65a', SHA1.sha1( string.rep( 'a', 55 ) ) )
+	assert_equal( 'c2db330f6083854c99d4b5bfb6e8f29f201be699', SHA1.sha1( string.rep( 'a', 56 ) ) )
+	assert_equal( '0098ba824b5c16427bd7a1122a5a442a25ec644d', SHA1.sha1( string.rep( 'a', 64 ) ) )
+	assert_equal( 'a080cbda64850abb7b7f67ee875ba068074ff6fe', SHA1.sha1( string.rep( 'a', 10000 ) ) )
+
+	-- bytes from 0x80 up
+	assert_equal( '78670e88a9c2c711124471d2f24a8dbc8ce5dba9', SHA1.sha1( string.rep( string.char( 255 ), 3 ) ) )
+
+	local binary = SHA1.sha1_binary( 'abc' )
+	assert_equal( 20, #binary )
+	assert_equal( 0xa9, binary:byte( 1 ) )
+	assert_equal( 0x9d, binary:byte( 20 ) )
+end
