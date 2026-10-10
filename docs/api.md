@@ -193,8 +193,8 @@ Setting `ws.throttle` changes the setting for all connections. A connection crea
 | `ws.EVENT` | Event name to listen for |
 | `ws.ONOPEN`, `ws.ONMESSAGE`, `ws.ONPONG`, `ws.ONCLOSE`, `ws.ONERROR` | Event types |
 | `ws.TEXT`, `ws.BINARY` | Message types |
-| `WebSockets.VERSION` | Library version, e.g. `'1.5.0'` |
-| `WebSockets.USER_AGENT` | `'dmc_websockets/1.5.0'`, sent in the handshake's `User-Agent` header |
+| `WebSockets.VERSION` | Library version, e.g. `'1.6.0'` |
+| `WebSockets.USER_AGENT` | `'dmc_websockets/1.6.0'`, sent in the handshake's `User-Agent` header |
 
 ## HTML5 Builds
 

@@ -1,6 +1,40 @@
 # Development
 
-How to test dmc-websockets, rebuild the libraries it bundles, and where it could go next.
+How dmc-websockets is put together, how to test it, how to rebuild the libraries it bundles, and where it could go next.
+
+## How It's Put Together
+
+The `WebSocket` class (`dmc_corona/dmc_websockets.lua`) holds what is the same on every platform: the API, the events, the connection states, the queue of outgoing messages and keep-alive. It makes its connection through a **transport**, picked once when the module loads:
+
+| Transport | Used | Does |
+|---|---|---|
+| `dmc_websockets/native.lua` | devices, the Simulator | the TCP socket (dmc-sockets), the opening handshake, the frames |
+| `dmc_websockets/html5.lua` | HTML5 builds | hands everything to the browser's own WebSocket, through the JavaScript bridge `html5_js.js` |
+
+Both have the same members and work in whole messages, so the class never sees a socket, a handshake or a frame:
+
+| Member | What |
+|---|---|
+| `connect( params )` | opens a connection and returns it; `params` has `scheme`, `host`, `port`, `path`, `protocols`, `origin`, `user_agent`, `ssl_params` and `onEvent` |
+| `checkParams( params )` | raises an error for constructor options the transport can't honor |
+| `setThrottle( value )` | how often connections are read |
+| `can_ping` | whether pings can be sent |
+| `url` | `parse()` and `escape()` |
+| `OFF`, `LOW`, `MEDIUM`, `HIGH` | the throttle constants |
+
+A connection has `send( kind, data )` for one whole message (`kind` is `text`, `binary`, `ping` or `pong`), `sendClose( code, reason )` to start or answer the closing handshake, and `close()` to drop it. It reports to `onEvent`:
+
+| Event | When |
+|---|---|
+| `open` | connected, and the handshake accepted |
+| `message` (`data`, `ftype`) | a whole message arrived |
+| `ping`, `pong` (`data`) | native only |
+| `close` (`code`, `reason`) | the server closed |
+| `drop` | native only: the socket closed without a closing handshake |
+| `protocol_error` (`code`, `reason`) | native only: what the server sent breaks the protocol |
+| `error` (`kind`, `emsg`) | the connection failed; `kind` is `network`, `request`, `handshake` or `internal` |
+
+A unit test checks that the two transports and their connections have the same members.
 
 ## Tests
 
@@ -14,10 +48,10 @@ Setup: Lua 5.1 with `luasocket`, `luafilesystem`, `dkjson` and `luabitop` (add `
 tests/run_unit.sh
 ```
 
-Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake, and the `WebSocket` class itself (receiving, pongs, keep-alive, failed connections, options) against stand-ins for dmc-sockets and Solar2D's `timer`. The class is also tested as in an HTML5 build, against a stand-in for the JavaScript bridge. Expected output ends with:
+Runs the lunatest specs in `tests/`: frame reading, UTF-8 validation, close codes and the handshake, and the `WebSocket` class itself (receiving, pongs, keep-alive, failed connections, options) against stand-ins for dmc-sockets and Solar2D's `timer`, which exercises the native transport. The class is also tested as in an HTML5 build, against a stand-in for the JavaScript bridge. Expected output ends with:
 
 ```text
-  49 passed, 0 failed, 0 error(s), 0 skipped.
+  53 passed, 0 failed, 0 error(s), 0 skipped.
 ```
 
 ### HTML5 Bridge

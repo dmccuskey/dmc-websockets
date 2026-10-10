@@ -433,3 +433,77 @@ function test_keepaliveStopsOnClose()
 	assert_equal( 1, pendingTimers() )
 	assert_equal( 4000, timers[ #timers ].ms )
 end
+
+
+--== Before the connection is open
+
+function test_closeWhileConnecting()
+	local ws, sock, events = newSocket()
+	ws:close()
+	assert_equal( ws.STATE_CLOSED, ws:getState() )
+	assert_true( sock.closed, "socket closed" )
+	assert_equal( 1, #eventsOf( events, ws.ONCLOSE ) )
+	-- the socket's late events are ignored
+	sock.handlers.onConnect{ type=sock.CONNECT, status=sock.CONNECTED }
+	assert_equal( 0, #sock.sent, "no handshake request" )
+	assert_equal( 0, #eventsOf( events, ws.ONERROR ) )
+end
+
+function test_sendsBeforeOpenWait()
+	local ws, sock = newSocket()
+	ws:send( 'early' )
+	assert_equal( 0, #sock.sent, "nothing before the handshake" )
+	open( sock )
+	assert_equal( 2, #sock.sent, "the request, then the message" )
+	local frame = decodeClientFrame( sock.sent[2] )
+	assert_equal( 0x1, frame.opcode )
+	assert_equal( 'early', frame.data )
+end
+
+function test_socketDropIsClose()
+	local ws, sock, events = newSocket()
+	open( sock )
+	sock.handlers.onConnect{ type=sock.CONNECT, status=sock.NOT_CONNECTED }
+	assert_equal( ws.STATE_CLOSED, ws:getState() )
+	assert_equal( 1, #eventsOf( events, ws.ONCLOSE ) )
+	assert_equal( 0, #eventsOf( events, ws.ONERROR ) )
+end
+
+
+--== The transports
+
+-- the native and the browser transport have the same members,
+-- and so do their connections
+--
+function test_transportsHaveSameMembers()
+	local function members( t )
+		local list = {}
+		for k, v in pairs( t ) do
+			if type( k ) == 'string' and k:sub( 1, 1 ) ~= '_' then
+				table.insert( list, k .. ':' .. type( v ) )
+			end
+		end
+		table.sort( list )
+		return table.concat( list, ' ' )
+	end
+
+	local bridge_name = 'dmc_corona.dmc_websockets.html5_js'
+	local saved_bridge = package.loaded[ bridge_name ]
+	package.loaded[ bridge_name ] = {
+		open=function() return { ok=true, id=1 } end,
+		dispose=function() end
+	}
+	local Native = require 'dmc_websockets.native'
+	local Html5 = require 'dmc_websockets.html5'
+
+	assert_equal( members( Native ), members( Html5 ), "modules" )
+
+	local params = { scheme='ws', host='example.com', port=80, path='/', onEvent=function() end }
+	local n_conn, h_conn = Native.connect( params ), Html5.connect( params )
+	assert_equal( members( getmetatable( n_conn ) ), members( getmetatable( h_conn ) ), "connections" )
+	n_conn:close()
+	h_conn:close()
+
+	package.loaded[ 'dmc_websockets.html5' ] = nil
+	package.loaded[ bridge_name ] = saved_bridge
+end
