@@ -101,7 +101,7 @@ end )
 
 After `ONCLOSE` or `ONERROR` the object is closed; create a new one to reconnect.
 
-If the server can't be reached, or the TLS handshake fails, you get `ONERROR` with code 3000 and the reason in `event.emsg` (such as `'timeout'`, or the TLS library's message).
+If the server can't be reached, or the TLS handshake fails, you get `ONERROR` with code 3000 and the reason in `event.emsg` (such as `'connection refused'`, `'timeout'`, or the TLS library's message).
 
 ### Close and Error Codes
 
@@ -193,8 +193,8 @@ Setting `ws.throttle` changes the setting for all connections. A connection crea
 | `ws.EVENT` | Event name to listen for |
 | `ws.ONOPEN`, `ws.ONMESSAGE`, `ws.ONPONG`, `ws.ONCLOSE`, `ws.ONERROR` | Event types |
 | `ws.TEXT`, `ws.BINARY` | Message types |
-| `WebSockets.VERSION` | Library version, e.g. `'1.6.0'` |
-| `WebSockets.USER_AGENT` | `'dmc_websockets/1.6.0'`, sent in the handshake's `User-Agent` header |
+| `WebSockets.VERSION` | Library version, e.g. `'1.6.1'` |
+| `WebSockets.USER_AGENT` | `'dmc_websockets/1.6.1'`, sent in the handshake's `User-Agent` header |
 
 ## HTML5 Builds
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1 (2026-10-11)
+
+### Fixed
+
+- A refused connection (nothing listening on the port), or a host that isn't found, gives `ONERROR` right away with `event.emsg` `'connection refused'`; before, it came after the whole connect timeout, as `'timeout'`. The fix is in dmc-sockets, bundled here, with its fix for reads waiting in a queue ([dmc-sockets #9](https://github.com/dmccuskey/dmc-sockets/issues/9)).
+
 ## 1.6.0 (2026-10-09)
 
 ### Changed
