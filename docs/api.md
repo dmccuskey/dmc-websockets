@@ -13,7 +13,7 @@ local WebSockets = require 'dmc_corona.dmc_websockets'
 | [`ws:send()`](#send) | method | Send a text or binary message |
 | [`ws:close()`](#close) | method | Close the connection |
 | [`ws:ping()`](#ping) | method | Send a ping; the server answers with `ONPONG` |
-| [`ws:connect()`](#connect) | method | Connect, when created with `auto_connect=false` |
+| [`ws:connect()`](#connect) | method | Connect, when created with `auto_connect=false`, or again after the connection closed |
 | [`ws.readyState`](#readystate) | property | Connection status |
 | [`ws.latency`](#latency) | property | Round trip of the last keep-alive ping |
 | [`ws.throttle`](#throttle) | property | How often sockets are checked for data |
@@ -62,7 +62,7 @@ local ws = WebSockets{
 }
 ```
 
-Each answered ping updates [`ws.latency`](#latency) and gives `ONPONG` with `event.latency`. Reconnecting is up to the app: create a new object.
+Each answered ping updates [`ws.latency`](#latency) and gives `ONPONG` with `event.latency`. Reconnecting is up to the app: call [`connect()`](#connect) again.
 
 ### TLS Settings
 
@@ -99,7 +99,7 @@ end )
 | `ws.ONCLOSE` | The connection closed | `event.code`, `event.reason` |
 | `ws.ONERROR` | The connection failed: it couldn't be opened, or failed after it was | `event.code`, `event.reason`, `event.emsg` (the socket's message, when there is one), `event.isError` (`true`) |
 
-After `ONCLOSE` or `ONERROR` the object is closed; create a new one to reconnect.
+After `ONCLOSE` or `ONERROR` the object is closed; call [`connect()`](#connect) to reconnect.
 
 If the server can't be reached, or the TLS handshake fails, you get `ONERROR` with code 3000 and the reason in `event.emsg` (such as `'connection refused'`, `'timeout'`, or the TLS library's message).
 
@@ -150,7 +150,7 @@ The server answers with a pong, which gives `ONPONG` with the same `event.data`.
 
 ### connect()
 
-Opens the connection. Only needed when the object was created with `auto_connect=false`.
+Opens the connection: when the object was created with `auto_connect=false`, or to reconnect after `ONCLOSE` or `ONERROR`. A reconnect is a new connection on the same object, which keeps its listeners and options; messages sent while it was closed are dropped, and [`latency`](#latency) is measured again. While the object is connecting, connected or closing, `connect()` does nothing.
 
 ### removeSelf()
 
@@ -160,7 +160,7 @@ Destroys the object and its listeners. Close the connection first.
 
 ### latency
 
-The round trip of the last answered keep-alive ping, in milliseconds; `nil` until one is answered, or without [`keepalive`](#keep-alive). It includes the time until the socket is next checked, so it's at least one frame with the default `throttle`.
+The round trip of the last answered keep-alive ping, in milliseconds; `nil` until one is answered on this connection, or without [`keepalive`](#keep-alive). It includes the time until the socket is next checked, so it's at least one frame with the default `throttle`.
 
 ### readyState
 
@@ -193,8 +193,8 @@ Setting `ws.throttle` changes the setting for all connections. A connection crea
 | `ws.EVENT` | Event name to listen for |
 | `ws.ONOPEN`, `ws.ONMESSAGE`, `ws.ONPONG`, `ws.ONCLOSE`, `ws.ONERROR` | Event types |
 | `ws.TEXT`, `ws.BINARY` | Message types |
-| `WebSockets.VERSION` | Library version, e.g. `'1.6.1'` |
-| `WebSockets.USER_AGENT` | `'dmc_websockets/1.6.1'`, sent in the handshake's `User-Agent` header |
+| `WebSockets.VERSION` | Library version, e.g. `'1.7.0'` |
+| `WebSockets.USER_AGENT` | `'dmc_websockets/1.7.0'`, sent in the handshake's `User-Agent` header |
 
 ## HTML5 Builds
 
@@ -226,7 +226,7 @@ Connection settings go in the [options](#options) of each connection instead. Ho
 
 ## Known Issues
 
-- **No reconnecting:** `auto_reconnect` is accepted but does nothing. Create a new object to reconnect; [keep-alive](#keep-alive) tells you when it's needed ([#17](https://github.com/dmccuskey/dmc-websockets/issues/17)).
+- **No automatic reconnecting:** `auto_reconnect` is accepted but does nothing. Call [`connect()`](#connect) to reconnect; [keep-alive](#keep-alive) tells you when it's needed ([#17](https://github.com/dmccuskey/dmc-websockets/issues/17)).
 - **Certificates aren't checked** by default for `wss://` (`verify='none'`, see [TLS Settings](#tls-settings); [#18](https://github.com/dmccuskey/dmc-websockets/issues/18)).
 - **`throttle` is shared** by every connection.
 - Extensions (such as compression) aren't supported ([#21](https://github.com/dmccuskey/dmc-websockets/issues/21)).

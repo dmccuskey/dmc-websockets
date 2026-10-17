@@ -423,6 +423,31 @@ function test_lateEventsOfReplacedConnection()
 end
 
 
+-- connect() on a closed object: a new browser socket, the old one's
+-- late events ignored
+--
+function test_reconnectAfterClose()
+	local ws, conn1, events = openSocket()
+	serverClose( conn1, 4001, 'bye' )
+	frame()
+	assert_equal( ws.STATE_CLOSED, ws:getState() )
+
+	ws:connect()
+	local conn2 = Bridge.last
+	assert_not_equal( conn1.id, conn2.id )
+	serverOpen( conn2 )
+	frame()
+	assert_equal( 2, #eventsOf( events, ws.ONOPEN ) )
+
+	serverClose( conn1, 1000, '' )
+	serverMessage( conn2, 'again' )
+	frame()
+	assert_equal( 1, #eventsOf( events, ws.ONMESSAGE ) )
+	assert_equal( 1, #eventsOf( events, ws.ONCLOSE ) )
+	assert_equal( ws.ESTABLISHED, ws.readyState )
+end
+
+
 --== Options
 
 function test_urlAndProtocols()

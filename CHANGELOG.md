@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0 (2026-10-17)
+
+### Added
+
+- `connect()` on a closed object reconnects: a new connection on the same object, which keeps its listeners and options, after `ONCLOSE` or `ONERROR`. Before, it printed `WARNING :: WebSocket:state_closed` and did nothing, so reconnecting meant creating a new object. `latency` is measured again on the new connection; the old one's late events are ignored. Automatic reconnecting (`auto_reconnect`) is still to come ([#17](https://github.com/dmccuskey/dmc-websockets/issues/17)).
+
 ## 1.6.1 (2026-10-11)
 
 ### Fixed
