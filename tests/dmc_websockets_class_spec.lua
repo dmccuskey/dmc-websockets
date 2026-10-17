@@ -470,6 +470,84 @@ function test_socketDropIsClose()
 end
 
 
+--== Connecting again
+
+-- connect() on a closed object makes a new connection, keeping
+-- the object and its listeners
+--
+function test_reconnectAfterClose()
+	local ws, sock1, events = newSocket()
+	open( sock1 )
+	ws:close()
+	feed( sock1, serverFrame( 0x8, string.char( 0x03, 0xe8 ) ) ) -- server's close
+	assert_equal( ws.STATE_CLOSED, ws:getState() )
+
+	ws:connect()
+	local sock2 = FakeSockets.last
+	assert_not_equal( sock1, sock2, "a new socket" )
+	assert_equal( ws.NOT_ESTABLISHED, ws.readyState )
+	open( sock2 )
+	assert_equal( 2, #eventsOf( events, ws.ONOPEN ) )
+	assert_equal( ws.ESTABLISHED, ws.readyState )
+
+	ws:send( 'again' )
+	assert_equal( 'again', decodeClientFrame( sock2.sent[2] ).data )
+	feed( sock2, serverFrame( 0x1, 'hello' ) )
+	assert_equal( 'hello', eventsOf( events, ws.ONMESSAGE )[1].message.data )
+end
+
+function test_reconnectAfterError()
+	local ws, sock1, events = newSocket{ keepalive=1000, keepalive_timeout=500 }
+	open( sock1 )
+	clock = 1000
+	fireTimers() -- ping
+	clock = 1040
+	feed( sock1, serverFrame( 0xA, decodeClientFrame( sock1.sent[2] ).data ) )
+	assert_equal( 40, ws.latency )
+	fireTimers() -- next ping
+	fireTimers() -- no pong in time
+	assert_equal( 1, #eventsOf( events, ws.ONERROR ) )
+
+	ws:connect()
+	assert_nil( ws.latency, "not measured on this connection yet" )
+	open( FakeSockets.last )
+	assert_equal( ws.STATE_CONNECTED, ws:getState() )
+	assert_equal( 1, pendingTimers(), "keep-alive runs again" )
+	assert_equal( 1000, timers[ #timers ].ms )
+end
+
+function test_reconnectIgnoresOldSocket()
+	local ws, sock1, events = newSocket()
+	open( sock1 )
+	sock1.handlers.onConnect{ type=sock1.CONNECT, status=sock1.NOT_CONNECTED } -- dropped
+	ws:connect()
+	local sock2 = FakeSockets.last
+	open( sock2 )
+
+	-- the first socket's late events
+	feed( sock1, serverFrame( 0x1, 'old' ) )
+	feed( sock1, serverFrame( 0x8, string.char( 0x03, 0xe8 ) ) )
+	sock1.handlers.onConnect{ type=sock1.CONNECT, status=sock1.NOT_CONNECTED }
+
+	assert_equal( ws.STATE_CONNECTED, ws:getState() )
+	assert_equal( 0, #eventsOf( events, ws.ONMESSAGE ) )
+	assert_equal( 1, #eventsOf( events, ws.ONCLOSE ), "only the first close" )
+end
+
+-- an open connection isn't replaced
+--
+function test_connectWhileConnected()
+	local ws, sock = newSocket()
+	open( sock )
+	local print_ = _G.print
+	_G.print = function() end
+	ws:connect()
+	_G.print = print_
+	assert_equal( sock, FakeSockets.last, "no new socket" )
+	assert_equal( ws.STATE_CONNECTED, ws:getState() )
+end
+
+
 --== The transports
 
 -- the native and the browser transport have the same members,
