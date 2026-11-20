@@ -324,6 +324,12 @@ function ATCPSocket:close()
 	-- print( 'ATCPSocket:close' )
 	self:_stopWriteHandler()
 	self._write_queue = {}
+	-- Cancel pending connects and reads before removing the socket.
+	self._coroutine_queue = {}
+	if self._coroutine_queue_active then
+		Runtime:removeEventListener( 'enterFrame', self )
+		self._coroutine_queue_active = false
+	end
 	self:superCall( 'close' )
 end
 

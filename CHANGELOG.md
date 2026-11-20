@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.1 (unreleased)
+
+### Fixed
+
+- Calling `close()` while a WebSocket was still connecting could raise `attempt to index field '_socket' (a nil value)` on a later frame in native builds.
+
 ## 1.7.0 (2026-10-17)
 
 ### Added
