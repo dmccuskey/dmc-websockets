@@ -5,6 +5,7 @@
 ### Fixed
 
 - Calling `close()` while a WebSocket was still connecting could raise `attempt to index field '_socket' (a nil value)` on a later frame in native builds.
+- Closing and reconnecting from inside a successful connect callback could deliver a stale `'timeout'` error to the new connection.
 
 ## 1.7.0 (2026-10-17)
 

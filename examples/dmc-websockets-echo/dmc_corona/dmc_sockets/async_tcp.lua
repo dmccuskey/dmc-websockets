@@ -278,6 +278,7 @@ function ATCPSocket:connect( host, port, params )
 				self._master:_connect( self )
 
 				if self._onConnect then self._onConnect( evt ) end
+				return
 
 			elseif CONNECT_FAILED[ emsg ] then
 				-- nothing will change by waiting: report it now
