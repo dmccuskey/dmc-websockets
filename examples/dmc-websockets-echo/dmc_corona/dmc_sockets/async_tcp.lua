@@ -278,6 +278,7 @@ function ATCPSocket:connect( host, port, params )
 				self._master:_connect( self )
 
 				if self._onConnect then self._onConnect( evt ) end
+				return
 
 			elseif CONNECT_FAILED[ emsg ] then
 				-- nothing will change by waiting: report it now
@@ -324,6 +325,12 @@ function ATCPSocket:close()
 	-- print( 'ATCPSocket:close' )
 	self:_stopWriteHandler()
 	self._write_queue = {}
+	-- Cancel pending connects and reads before removing the socket.
+	self._coroutine_queue = {}
+	if self._coroutine_queue_active then
+		Runtime:removeEventListener( 'enterFrame', self )
+		self._coroutine_queue_active = false
+	end
 	self:superCall( 'close' )
 end
 
