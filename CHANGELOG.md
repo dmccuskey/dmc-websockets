@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.1 (2026-11-24)
+
+### Fixed
+
+- `close()` while still connecting stopped the app on a later frame with `attempt to index field '_socket' (a nil value)`, after `ONCLOSE` had been sent (native builds). Built with dmc-sockets 0.4.0, which drops a pending connect when its socket is closed or removed. Found and fixed by Christian Kündig ([#23](https://github.com/dmccuskey/dmc-websockets/pull/23)); the fix went into dmc-sockets, whose copy this is.
+
 ## 1.7.0 (2026-10-17)
 
 ### Added
